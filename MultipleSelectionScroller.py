@@ -30,6 +30,7 @@
 
 import sublime
 import sublime_plugin
+import math
 
 
 class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
@@ -53,7 +54,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # "forward" arg.
         scroll_direction = self.set_scroll_direction(**kwargs)
 
-        print("scroll_direction: " + str(scroll_direction))
+        self.handle_scrolling(scroll_direction)
 
     # End of def run()
 
@@ -100,4 +101,120 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
     # End of def set_scroll_direction()
 
+
+    def handle_scrolling(self, scroll_direction):
+
+        # Scrolling forwards through the selections is done by moving the next selection which
+        # occurs after the middle line of the visible region to the middle line of the visible
+        # region. Scrolling backwards through the selections is done in the same way except by
+        # moving the next selection which occurs before the middle line.
+        #
+        # It is not possible to do this in two cases:
+        #
+        # If a selection is near the top of the buffer, Sublime Text won't scroll the line it is
+        # on to the centre of the visible region, there is no 'scroll_above_begining' setting.
+        #
+        # If a selection in near the bottom of the buffer and the setting 'scroll_past_end' has been
+        # set to false (defaults to true) then again Sublime Text won't move the line it is on to
+        # the centre of the visible region (although it will if 'scroll_past_end' is set to true).
+        #
+        # In both of these cases, although the selection will not be moved to the middle line of
+        # the visible region, the selection will still be viewable on the screen.
+
+        # Get the visible region, the list of visible lines, and the number of visible lines.
+        visible_region = self.view.visible_region()
+        visible_lines = self.view.lines(visible_region)
+        visible_lines_len = len(visible_lines)
+
+        # Just in case nothing is visible at all. Note that view.lines() will always return at least
+        # one line (the top line) even if the visible_region is (0, 0). Note also that if two lines
+        # are visible then the scrolling done by this plugin still works.
+        if visible_lines_len < 2:
+            return
+
+        # Calculate which line is in the middle of the visible lines, converting to int floors it.
+        middle_line_num = int(visible_lines_len / 2)
+
+        # Store the region of the middle line.
+        middle_line = visible_lines[middle_line_num]
+
+        # Scroll forwards or backwards as appropriate.
+
+        if scroll_direction == MultipleSelectionScrollerCommand.SCROLL_FORWARDS:
+            self.scroll_forwards(middle_line)
+
+        elif scroll_direction == MultipleSelectionScrollerCommand.SCROLL_BACKWARDS:
+            self.scroll_backwards(middle_line)
+
+    # End of def handle_scrolling()
+
+
+    def scroll_forwards(self, middle_line):
+
+        # Store the selections and the number of them.
+        sels = self.view.sel()
+        sels_len = len(sels)
+
+        # If there are no selections abort.
+        if sels_len < 1:
+            return
+
+        # Starting from the first selection, loop through all the selections looking for the next
+        # selection to occur after the middle line.
+
+        sel_index = 0
+        found = False
+
+        while sel_index < sels_len and not found:
+
+            sel = sels[sel_index]
+
+            # If a selection is found after the middle line.
+            if sel.begin() > middle_line.end():
+
+                # Scroll the visible region to the line the selection begins on.
+                self.view.show_at_center(sel.begin())
+
+                # All done, quit loop.
+                found = True
+
+            sel_index += 1
+
+    # End of def scroll_forwards()
+
+
+    def scroll_backwards(self, middle_line):
+
+        # Store the selections and the number of them.
+        sels = self.view.sel()
+        sels_len = len(sels)
+
+        # If there are no selections abort.
+        if sels_len < 1:
+            return
+
+        # Starting from the last selection, loop through all the selections looking for the next
+        # selection to occur before the middle line.
+
+        sel_index = sels_len - 1
+        found = False
+
+        while sel_index >= 0 and not found:
+
+            sel = sels[sel_index]
+
+            # If a selection is found before the middle line.
+            if sel.end() < middle_line.begin():
+
+                # Scroll the visible region to the line the selection begins on.
+                self.view.show_at_center(sel.begin())
+
+                # All done, quit loop.
+                found = True
+
+            sel_index -= 1
+
+    # End of def scroll_backwards()
+
 # End of class MultipleSelectionScrollerCommand()
+
