@@ -50,9 +50,19 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         run() is called when the command is run - it controls the plugin's flow of execution.
         """
 
-        # Holds the scroll direction. Set to the default or to the value specified by the command's
-        # "forward" arg.
+        # Get the number of selections and abort if there aren't any, none to scroll through.
+
+        sels_len = len(self.view.sel())
+
+        if sels_len < 1:
+            return
+
+        # Store the scroll direction - set it to the value specified by the command's "forward"
+        # argument or to the default (which is to scroll forwards).
+
         scroll_direction = self.set_scroll_direction(**kwargs)
+
+        # Perform the scrolling.
 
         self.handle_scrolling(scroll_direction)
 
@@ -155,10 +165,6 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         sels = self.view.sel()
         sels_len = len(sels)
 
-        # If there are no selections abort.
-        if sels_len < 1:
-            return
-
         # Starting from the first selection, loop through all the selections looking for the next
         # selection to occur after the middle line.
 
@@ -188,10 +194,6 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # Store the selections and the number of them.
         sels = self.view.sel()
         sels_len = len(sels)
-
-        # If there are no selections abort.
-        if sels_len < 1:
-            return
 
         # Starting from the last selection, loop through all the selections looking for the next
         # selection to occur before the middle line.
