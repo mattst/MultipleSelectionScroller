@@ -9,22 +9,24 @@
 #
 # Written by:     Matthew Stanfield
 #
-# Last Edited:    2015-02-18
+# Last Edited:    2015-02-20
 #
 # Version:        n/a
 #
 # ST Command:     multiple_selection_scroller
 #
-# Optional Arg:   forward : Multiple selection scroll direction
-# Arg Value:      true    : Scroll forwards through selections
-# Arg Value:      false   : Scroll backwards through selections
+# Required Arg:   scroll     : Scroll to where:
+# Arg Value:      next       : Scroll forwards to the next selection
+# Arg Value:      previous   : Scroll backwards to the previous selection
+# Arg Value:      first      : Scroll to the first (top) selection
+# Arg Value:      last       : Scroll to the last (bottom) selection
 #
 # Settings Examples:
 #
 # Default (OS).sublime-keymap file:
 #
-# { "keys": ["ctrl+shift+["], "command": "multiple_selection_scroller", "args": {"forward": false} }
-# { "keys": ["ctrl+shift+]"], "command": "multiple_selection_scroller", "args": {"forward": true} }
+# { "keys": ["ctrl+shift+["], "command": "multiple_selection_scroller", "args": {"scroll": ""} }
+# { "keys": ["ctrl+shift+]"], "command": "multiple_selection_scroller", "args": {"scroll": ""} }
 #
 
 
@@ -39,10 +41,12 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
     """
 
 
-    # Constants to set the scroll direction to.
+    # Constants to control scrolling.
 
-    SCROLL_FORWARDS  = 1
-    SCROLL_BACKWARDS = 2
+    SCROLL_TO_NEXT     = 1
+    SCROLL_TO_PREVIOUS = 2
+    SCROLL_TO_FIRST    = 3
+    SCROLL_TO_LAST     = 4
 
 
     def run(self, edit, **kwargs):
@@ -50,73 +54,70 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         run() is called when the command is run - it controls the plugin's flow of execution.
         """
 
-        # Get the number of selections and abort if there aren't any, none to scroll through.
+        # Get the number of selections and abort if there aren't any, nothing to do.
 
         sels_len = len(self.view.sel())
 
         if sels_len < 1:
             return
 
-        # Store the scroll direction - set it to the value specified by the command's "forward"
-        # argument or to the default (which is to scroll forwards).
+        # Set the scroll direction to the value specified by the command's "scroll" argument.
 
-        scroll_direction = self.set_scroll_direction(**kwargs)
+        self.scroll_to = None
+
+        self.set_scroll_to(**kwargs)
 
         # Perform the scrolling.
 
-        self.handle_scrolling(scroll_direction)
+        self.handle_scrolling()
 
     # End of def run()
 
 
-    def set_scroll_direction(self, **kwargs):
+    def set_scroll_to(self, **kwargs):
         """
-        set_scroll_direction() returns the value to set the scroll_direction variable to. If the
-        command's "forward" arg is available then that will be used, otherwise the default.
+        set_scroll_to() sets the scroll_to class variable according to the value held by "scroll"
+        in the kwargs dictionary.
         """
 
-        # Set the default.
-        scroll_direction_default = MultipleSelectionScrollerCommand.SCROLL_FORWARDS
+        # If available get the command's "scroll" arg from the kwargs dictionary.
+        if "scroll" in kwargs:
+            scroll_arg_val = kwargs.get("scroll")
 
-        # If available get the "forward" arg from the kwargs dictionary.
-        if "forward" in kwargs:
-            forward_arg_val = kwargs.get("forward")
-
-        # "forward" is not in the dictionary - return the default.
+        # "scroll" is not in the dictionary.
         else:
-            return scroll_direction_default
+            return False
 
-        # Warning to display as a status message and in the console if "forward" is not boolean.
-        msg =  "multiple_selection_scroller command: 'forward' arg can be set to 'true' or 'false'"
+        # Convert to a string in case some other type was used in error.
+        scroll_arg_val = str(scroll_arg_val)
 
-        # If not set to a boolean value - display warning and return the default.
-        if not isinstance(forward_arg_val, bool):
-            print(msg)
-            sublime.status_message(msg)
-            return scroll_direction_default
+        # Set the scroll_to class variable.
 
-        # Return the appropriate constant.
+        if scroll_arg_val.lower() == "next":
+            self.scroll_to = MultipleSelectionScrollerCommand.SCROLL_TO_NEXT
 
-        if forward_arg_val == True:
-            return MultipleSelectionScrollerCommand.SCROLL_FORWARDS
+        elif scroll_arg_val.lower() == "previous":
+            self.scroll_to = MultipleSelectionScrollerCommand.SCROLL_TO_PREVIOUS
 
-        elif forward_arg_val == False:
-            return MultipleSelectionScrollerCommand.SCROLL_BACKWARDS
+        elif scroll_arg_val.lower() == "first":
+            self.scroll_to = MultipleSelectionScrollerCommand.SCROLL_TO_FIRST
 
-        # "forward" is set to an invalid value - display warning and return the default.
+        elif scroll_arg_val.lower() == "last":
+            self.scroll_to = MultipleSelectionScrollerCommand.SCROLL_TO_LAST
+
+        # "scroll" is set to an invalid value.
         else:
-            print(msg)
-            sublime.status_message(msg)
-            return scroll_direction_default
+            return False
 
-    # End of def set_scroll_direction()
+        return True
+
+    # End of def set_scroll_to()
 
 
-    def handle_scrolling(self, scroll_direction):
+    def handle_scrolling(self):
         """
-        handle_scrolling() calls either the scroll_forwards() or the scroll_backwards() method
-        according to the value of its scroll_direction argument. It provides these methods with
-        their essential shared requirement, the region of the middle line of the visible region.
+        handle_scrolling() controls scrolling calling the appropriate method depending on what the
+        value of the scroll_to class variable has been set to.
 
         This method also provides important notes about how this plugin handles the scrolling.
         """
@@ -145,44 +146,82 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # scrolling forwards) or above the middle line (if scrolling backwards) will definitely be
         # in the visible region on the screen.
 
+        # # Get the visible region, the list of visible lines, and the number of visible lines.
+        # visible_region = self.view.visible_region()
+        # visible_lines = self.view.lines(visible_region)
+        # visible_lines_len = len(visible_lines)
+
+        # # Abort in the unlikely event that fewer than 2 lines are visible.
+        # visible_lines_minimum = 2
+
+        # if visible_lines_len < visible_lines_minimum:
+        #     return
+
+        # # Calculate which line is in the middle of the visible lines, converting to int floors it.
+        # middle_line_num = int(visible_lines_len / 2)
+        # print("middle_line_num: " + str(middle_line_num))
+
+        # # Store the region of the middle line.
+        # middle_line = visible_lines[middle_line_num]
+
+
+        # Perform the appropriate Scrolling.
+
+        if self.scroll_to == MultipleSelectionScrollerCommand.SCROLL_TO_NEXT:
+            self.scroll_to_next_selection()
+
+        elif self.scroll_to == MultipleSelectionScrollerCommand.SCROLL_TO_PREVIOUS:
+            self.scroll_to_previous_selection()
+
+        elif self.scroll_to == MultipleSelectionScrollerCommand.SCROLL_TO_FIRST:
+            self.scroll_to_first_selection()
+
+        elif self.scroll_to == MultipleSelectionScrollerCommand.SCROLL_TO_LAST:
+            self.scroll_to_last_selection()
+
+    # End of def handle_scrolling()
+
+
+    def get_middle_line(self):
+        """
+        get_middle_line() returns the region of the middle line of the visible lines.
+        """
+
         # Get the visible region, the list of visible lines, and the number of visible lines.
         visible_region = self.view.visible_region()
         visible_lines = self.view.lines(visible_region)
         visible_lines_len = len(visible_lines)
 
         # Abort in the unlikely event that fewer than 2 lines are visible.
-        visible_lines_minimum = 2
+        # visible_lines_minimum = 2
 
-        if visible_lines_len < visible_lines_minimum:
-            return
+        # if visible_lines_len < visible_lines_minimum:
+        #     return
 
         # Calculate which line is in the middle of the visible lines, converting to int floors it.
         middle_line_num = int(visible_lines_len / 2)
+        print("middle_line_num: " + str(middle_line_num))
 
         # Store the region of the middle line.
         middle_line = visible_lines[middle_line_num]
 
-        # Scroll forwards or backwards as appropriate.
+        return middle_line
 
-        if scroll_direction == MultipleSelectionScrollerCommand.SCROLL_FORWARDS:
-            self.scroll_forwards(middle_line)
-
-        elif scroll_direction == MultipleSelectionScrollerCommand.SCROLL_BACKWARDS:
-            self.scroll_backwards(middle_line)
-
-    # End of def handle_scrolling()
+    # End of def get_middle_line()
 
 
-    def scroll_forwards(self, middle_line):
+    def scroll_to_next_selection(self):
         """
-        scroll_forwards() moves the visible region to centre on the first selection to occur below
-        the middle_line region, if there is such a selection. See the lengthy comment notes in
-        handle_scrolling() about why Sublime Text may not honour calls to view.show_at_center().
+        scroll_to_next_selection() moves the visible region to centre on the first selection to
+        occur below the middle_line region, if there is such a selection.
         """
 
         # Get the selections and the number of them.
         sels = self.view.sel()
         sels_len = len(sels)
+
+        # Get the region of the middle line.
+        middle_line = self.get_middle_line()
 
         # Starting at the first selection, loop forwards through all the selections looking for the
         # first selection to occur below the middle line.
@@ -205,19 +244,21 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
             sel_index += 1
 
-    # End of def scroll_forwards()
+    # End of def scroll_to_next_selection()
 
 
-    def scroll_backwards(self, middle_line):
+    def scroll_to_previous_selection(self):
         """
-        scroll_backwards() moves the visible region to centre on the first selection to occur above
-        the middle_line region, if there is such a selection. See the lengthy comment notes in
-        handle_scrolling() about why Sublime Text may not honour calls to view.show_at_center().
+        scroll_to_previous_selection() moves the visible region to centre on the first selection to
+        occur above the middle_line region, if there is such a selection.
         """
 
         # Get the selections and the number of them.
         sels = self.view.sel()
         sels_len = len(sels)
+
+        # Get the region of the middle line.
+        middle_line = self.get_middle_line()
 
         # Starting at the last selection, loop backwards through all the selections looking for the
         # first selection to occur above the middle line.
@@ -240,7 +281,39 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
             sel_index -= 1
 
-    # End of def scroll_backwards()
+    # End of def scroll_to_previous_selection()
+
+
+    def scroll_to_first_selection(self):
+        """
+        scroll_to_first_selection() moves the visible region to centre on the first selection.
+        """
+
+        # Get the first selection.
+        sels = self.view.sel()
+        sel_first_index = 0
+        sel_first = sels[sel_first_index]
+
+        # Scroll the visible region to the line the first selection begins on.
+        self.view.show_at_center(sel_first.begin())
+
+    # End of def scroll_to_first_selection()
+
+
+    def scroll_to_last_selection(self):
+        """
+        scroll_to_last_selection() moves the visible region to centre on the last selection.
+        """
+
+        # Get the last selection.
+        sels = self.view.sel()
+        sel_last_index = len(sels) - 1
+        sel_last = sels[sel_last_index]
+
+        # Scroll the visible region to the line the last selection begins on.
+        self.view.show_at_center(sel_last.begin())
+
+    # End of def scroll_to_last_selection()
 
 # End of class MultipleSelectionScrollerCommand()
 
