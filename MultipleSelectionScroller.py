@@ -42,23 +42,23 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
     # Definitions of the various constants used:
 
-    # For mode control, assigned to the mode class variable.
+    # For: control mode - assigned to the control_mode instance variable.
 
-    SCROLL             = 1
-    CLEAR              = 2
+    SCROLL              = 1
+    CLEAR               = 2
 
-    # For scrolling to selections, assigned to the scroll_to class variable.
+    # For: scrolling to selections - assigned to the scroll_to instance variable.
 
-    SCROLL_TO_PREVIOUS = 3
-    SCROLL_TO_NEXT     = 4
-    SCROLL_TO_FIRST    = 5
-    SCROLL_TO_LAST     = 6
+    SCROLL_TO_PREVIOUS  = 3
+    SCROLL_TO_NEXT      = 4
+    SCROLL_TO_FIRST     = 5
+    SCROLL_TO_LAST      = 6
 
-    # For cursor position after clearing selections, assigned to the clear_to class variable.
+    # For: cursor position after clearing selections - assigned to the clear_to instance variable.
 
-    CLEAR_TO_FIRST     = 7
-    CLEAR_TO_LAST      = 8
-    CLEAR_TO_NEAREST   = 9
+    CLEAR_TO_FIRST      = 7
+    CLEAR_TO_LAST       = 8
+    CLEAR_TO_NEAREST    = 9
 
 
     def run(self, edit, **kwargs):
@@ -66,46 +66,58 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         run() is called when the command is run - it controls the plugin's flow of execution.
         """
 
-        # Get the number of selections and abort if there aren't any, nothing to do.
+        # Define the 3 instance variables (no other instance variables are used).
 
+        # Storage for the control mode.
+        self.control_mode = None
+
+        # Storage for which scroll operation to perform.
+        self.scroll_to = None
+
+        # Storage for which clear operation to perform.
+        self.clear_to = None
+
+        # Just in case get the number of selections and abort if there aren't any, nothing to do.
         sels_len = len(self.view.sel())
 
         if sels_len < 1:
             return
 
-        self.mode = None
-
-        # Set the scroll direction to the value specified by the command's "scroll" argument.
-
-        self.scroll_to = None
+        # Set scroll_to, clear_to, and control_mode according to the argument used in the command
+        # call. Note that if the command was called correctly then either scroll_to or clear_to
+        # will remain set to None but control_mode will be definitely set.
 
         self.set_scroll_to(**kwargs)
-
-        self.clear_to = None
-
         self.set_clear_to(**kwargs)
 
-        print("mode: " + str(self.mode))
+
+        print("control_mode: " + str(self.control_mode))
         print("scroll_to: " + str(self.scroll_to))
         print("clear_to: " + str(self.clear_to))
 
-        if self.mode is None:
+
+        # If control_mode has not been set, the command was called using invalid values.
+        if self.control_mode is None:
             msg = "multiple_selection_scroller command: missing or invalid command args"
             print(msg)
             sublime.status_message(msg)
             return
 
-        # Perform the scrolling.
+        # Perform the scrolling operation.
+        elif self.control_mode == MultipleSelectionScrollerCommand.SCROLL:
+            self.handle_scrolling()
 
-        self.handle_scrolling()
+        # Perform the clearing operation.
+        elif self.control_mode == MultipleSelectionScrollerCommand.CLEAR:
+            self.handle_clearing()
 
     # End of def run()
 
 
     def set_scroll_to(self, **kwargs):
         """
-        set_scroll_to() sets the scroll_to class variable according to the value held by "scroll_to"
-        in the kwargs dictionary and sets the mode class variable.
+        set_scroll_to() sets the scroll_to instance variable according to the value held by
+        "scroll_to" in the kwargs dictionary and sets the control_mode instance variable.
         """
 
         # If available get the command's "scroll_to" arg from the kwargs dictionary.
@@ -119,7 +131,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # Convert to a string in case some other type was used in error.
         scroll_to_arg_val = str(scroll_to_arg_val)
 
-        # Set the scroll_to class variable.
+        # Set the scroll_to instance variable.
 
         if scroll_to_arg_val.lower() == "next":
             self.scroll_to = MultipleSelectionScrollerCommand.SCROLL_TO_NEXT
@@ -137,15 +149,16 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         else:
             return
 
-        self.mode = MultipleSelectionScrollerCommand.SCROLL
+        # Set the control_mode instance variable.
+        self.control_mode = MultipleSelectionScrollerCommand.SCROLL
 
     # End of def set_scroll_to()
 
 
     def set_clear_to(self, **kwargs):
         """
-        set_clear_to() sets the clear_to class variable according to the value held by "clear_to"
-        in the kwargs dictionary and sets the mode class variable.
+        set_clear_to() sets the clear_to instance variable according to the value held by
+        "clear_to" in the kwargs dictionary and sets the control_mode instance variable.
         """
 
         # If available get the command's "clear_to" arg from the kwargs dictionary.
@@ -159,7 +172,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # Convert to a string in case some other type was used in error.
         clear_to_arg_val = str(clear_to_arg_val)
 
-        # Set the clear_to class variable.
+        # Set the clear_to instance variable.
 
         if clear_to_arg_val.lower() == "first":
             self.clear_to = MultipleSelectionScrollerCommand.CLEAR_TO_FIRST
@@ -174,7 +187,8 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         else:
             return
 
-        self.mode = MultipleSelectionScrollerCommand.CLEAR
+        # Set the control_mode instance variable.
+        self.control_mode = MultipleSelectionScrollerCommand.CLEAR
 
     # End of def set_clear_to()
 
@@ -182,7 +196,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
     def handle_scrolling(self):
         """
         handle_scrolling() controls scrolling calling the appropriate method depending on what the
-        value of the scroll_to class variable has been set to.
+        value of the scroll_to instance variable has been set to.
 
         This method also provides important notes about how this plugin handles the scrolling.
         """
