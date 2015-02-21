@@ -328,6 +328,12 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
             sel_index += 1
 
+        # If no selection is found below the middle line scroll to the first selection.
+        if not found:
+            sel_index = 0
+            sel = sels[sel_index]
+            self.view.show_at_center(sel.begin())
+
     # End of def scroll_to_next_selection()
 
 
@@ -364,6 +370,12 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
                 found = True
 
             sel_index -= 1
+
+        # If no selection is found above the middle line scroll to the last selection.
+        if not found:
+            sel_index = sels_len - 1
+            sel = sels[sel_index]
+            self.view.show_at_center(sel.begin())
 
     # End of def scroll_to_previous_selection()
 
