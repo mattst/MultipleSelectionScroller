@@ -40,13 +40,25 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
     """
 
+    # Definitions of the various constants used:
 
-    # Constants to control scrolling.
+    # For mode control, assigned to the mode class variable.
 
-    SCROLL_TO_NEXT     = 1
-    SCROLL_TO_PREVIOUS = 2
-    SCROLL_TO_FIRST    = 3
-    SCROLL_TO_LAST     = 4
+    SCROLL             = 1
+    CLEAR              = 2
+
+    # For scrolling to selections, assigned to the scroll_to class variable.
+
+    SCROLL_TO_PREVIOUS = 3
+    SCROLL_TO_NEXT     = 4
+    SCROLL_TO_FIRST    = 5
+    SCROLL_TO_LAST     = 6
+
+    # For cursor position after clearing selections, assigned to the clear_to class variable.
+
+    CLEAR_TO_FIRST     = 7
+    CLEAR_TO_LAST      = 8
+    CLEAR_TO_NEAREST   = 9
 
 
     def run(self, edit, **kwargs):
@@ -61,11 +73,27 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         if sels_len < 1:
             return
 
+        self.mode = None
+
         # Set the scroll direction to the value specified by the command's "scroll" argument.
 
         self.scroll_to = None
 
         self.set_scroll_to(**kwargs)
+
+        self.clear_to = None
+
+        self.set_clear_to(**kwargs)
+
+        print("mode: " + str(self.mode))
+        print("scroll_to: " + str(self.scroll_to))
+        print("clear_to: " + str(self.clear_to))
+
+        if self.mode is None:
+            msg = "multiple_selection_scroller command: missing or invalid command args"
+            print(msg)
+            sublime.status_message(msg)
+            return
 
         # Perform the scrolling.
 
@@ -76,42 +104,79 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
     def set_scroll_to(self, **kwargs):
         """
-        set_scroll_to() sets the scroll_to class variable according to the value held by "scroll"
-        in the kwargs dictionary.
+        set_scroll_to() sets the scroll_to class variable according to the value held by "scroll_to"
+        in the kwargs dictionary and sets the mode class variable.
         """
 
-        # If available get the command's "scroll" arg from the kwargs dictionary.
-        if "scroll" in kwargs:
-            scroll_arg_val = kwargs.get("scroll")
+        # If available get the command's "scroll_to" arg from the kwargs dictionary.
+        if "scroll_to" in kwargs:
+            scroll_to_arg_val = kwargs.get("scroll_to")
 
-        # "scroll" is not in the dictionary.
+        # "scroll_to" is not in the dictionary.
         else:
-            return False
+            return
 
         # Convert to a string in case some other type was used in error.
-        scroll_arg_val = str(scroll_arg_val)
+        scroll_to_arg_val = str(scroll_to_arg_val)
 
         # Set the scroll_to class variable.
 
-        if scroll_arg_val.lower() == "next":
+        if scroll_to_arg_val.lower() == "next":
             self.scroll_to = MultipleSelectionScrollerCommand.SCROLL_TO_NEXT
 
-        elif scroll_arg_val.lower() == "previous":
+        elif scroll_to_arg_val.lower() == "previous":
             self.scroll_to = MultipleSelectionScrollerCommand.SCROLL_TO_PREVIOUS
 
-        elif scroll_arg_val.lower() == "first":
+        elif scroll_to_arg_val.lower() == "first":
             self.scroll_to = MultipleSelectionScrollerCommand.SCROLL_TO_FIRST
 
-        elif scroll_arg_val.lower() == "last":
+        elif scroll_to_arg_val.lower() == "last":
             self.scroll_to = MultipleSelectionScrollerCommand.SCROLL_TO_LAST
 
-        # "scroll" is set to an invalid value.
+        # "scroll_to" is set to an invalid value.
         else:
-            return False
+            return
 
-        return True
+        self.mode = MultipleSelectionScrollerCommand.SCROLL
 
     # End of def set_scroll_to()
+
+
+    def set_clear_to(self, **kwargs):
+        """
+        set_clear_to() sets the clear_to class variable according to the value held by "clear_to"
+        in the kwargs dictionary and sets the mode class variable.
+        """
+
+        # If available get the command's "clear_to" arg from the kwargs dictionary.
+        if "clear_to" in kwargs:
+            clear_to_arg_val = kwargs.get("clear_to")
+
+        # "clear_to" is not in the dictionary.
+        else:
+            return
+
+        # Convert to a string in case some other type was used in error.
+        clear_to_arg_val = str(clear_to_arg_val)
+
+        # Set the clear_to class variable.
+
+        if clear_to_arg_val.lower() == "first":
+            self.clear_to = MultipleSelectionScrollerCommand.CLEAR_TO_FIRST
+
+        elif clear_to_arg_val.lower() == "last":
+            self.clear_to = MultipleSelectionScrollerCommand.CLEAR_TO_LAST
+
+        elif clear_to_arg_val.lower() == "nearest":
+            self.clear_to = MultipleSelectionScrollerCommand.CLEAR_TO_NEAREST
+
+        # "clear_to" is set to an invalid value.
+        else:
+            return
+
+        self.mode = MultipleSelectionScrollerCommand.CLEAR
+
+    # End of def set_clear_to()
 
 
     def handle_scrolling(self):
