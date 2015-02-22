@@ -70,7 +70,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
     # For: Operational status.
 
     MIN_NUM_SELECTIONS     = 1
-    MIN_NUM_VISIBLE_LINES  = 2
+    MIN_NUM_VISIBLE_LINES  = 1
 
 
     def run(self, edit, **kwargs):
@@ -80,13 +80,13 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
         # Define the 5 instance variables (no other instance variables are used).
 
-        # Holds the control mode.
+        # Holds the control mode - set by either: set_scroll_to() or set_clear_to()
         self.control_mode = None
 
-        # Holds which scroll operation to perform.
+        # Holds which scroll operation to perform (if any) - set by: set_scroll_to()
         self.scroll_to = None
 
-        # Holds which clear operation to perform.
+        # Holds which clear operation to perform (if any) - set by: set_clear_to()
         self.clear_to = None
 
         # Holds the current selections.
@@ -95,20 +95,21 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # Holds the length of the current selections.
         self.sels_len = len(self.sels)
 
-        # Check to make sure there are both selections and visible lines.
+        # Check to make sure that there are selections and visible lines.
         if not self.operational_status():
             return
 
-        # Set scroll_to, clear_to, and control_mode according to the argument used in the command
-        # call. Note that if the command was called correctly then either scroll_to or clear_to
-        # will remain set to None but control_mode will be definitely set.
-
+        # Set the scroll_to instance variable if the command was called using the scroll_to arg,
+        # if so then it will also set the control_mode instance variable to the constant SCROLL.
         self.set_scroll_to(**kwargs)
+
+        # Set the clear_to instance variable if the command was called using the clear_to arg,
+        # if so then it will also set the control_mode instance variable to the constant CLEAR.
         self.set_clear_to(**kwargs)
 
         # If control_mode has not been set, the command was called using invalid values.
         if self.control_mode is None:
-            msg = "multiple_selection_scroller command: missing or invalid command args"
+            msg = "multiple_selection_scroller: invalid or missing command args"
             print(msg)
             sublime.status_message(msg)
             return
@@ -131,11 +132,10 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         if not.
         """
 
-        # Return false if the number of selections is fewer than the minimum. Clearly there is
-        # nothing for this plugin to do.
+        # Return false if there are no selections, clearly there is nothing for this plugin to do.
 
         if self.sels_len < MultipleSelectionScrollerCommand.MIN_NUM_SELECTIONS:
-            msg = "multiple_selection_scroller command: no selections"
+            msg = "multiple_selection_scroller: there are no selections"
             sublime.status_message(msg)
             return False
 
@@ -147,7 +147,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         visible_lines_len = len(visible_lines)
 
         if visible_lines_len < MultipleSelectionScrollerCommand.MIN_NUM_VISIBLE_LINES:
-            msg = "multiple_selection_scroller command: too few visible lines"
+            msg = "multiple_selection_scroller: too few visible lines"
             sublime.status_message(msg)
             return False
 
