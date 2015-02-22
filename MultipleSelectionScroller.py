@@ -9,24 +9,31 @@
 #
 # Written by:     Matthew Stanfield
 #
-# Last Edited:    2015-02-20
+# Last Edited:    2015-02-22
 #
 # Version:        n/a
 #
 # ST Command:     multiple_selection_scroller
 #
-# Required Arg:   scroll     : Scroll to where:
-# Arg Value:      next       : Scroll forwards to the next selection
-# Arg Value:      previous   : Scroll backwards to the previous selection
-# Arg Value:      first      : Scroll to the first (top) selection
-# Arg Value:      last       : Scroll to the last (bottom) selection
+# Arg Required:   Either scroll_to or clear_to must be used but not both.
+#
+# Arg:            scroll_to  : Scroll to where (placing on middle line):
+# Value:          next       : Forwards to the next selection
+# Value:          previous   : Backwards to the previous selection
+# Value:          first      : To the first (top) selection
+# Value:          last       : To the last (bottom) selection
+#
+# Arg:            clear_to   : Clear all selections, leaving a single cursor at:
+# Value:          first      : The first (top) selection
+# Value:          last       : The last (bottom) selection
+# Value:          nearest    : The selection nearest the middle line
 #
 # Settings Examples:
 #
 # Default (OS).sublime-keymap file:
 #
-# { "keys": ["ctrl+shift+["], "command": "multiple_selection_scroller", "args": {"scroll": ""} }
-# { "keys": ["ctrl+shift+]"], "command": "multiple_selection_scroller", "args": {"scroll": ""} }
+# { "keys": [""], "command": "multiple_selection_scroller", "args": {"scroll_to": ""} }
+# { "keys": [""], "command": "multiple_selection_scroller", "args": {"clear_to": ""} }
 #
 
 
@@ -40,7 +47,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
     """
 
-    # Class variable definitions of the various constants used:
+    # Definitions of the various constants used:
 
     # For: control mode - assigned to the control_mode instance variable.
 
@@ -297,7 +304,8 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
     def scroll_to_next_selection(self):
         """
         scroll_to_next_selection() moves the visible region to centre on the first selection to
-        occur below the middle_line region, if there is such a selection.
+        occur below the middle_line region. If there is no such selection it moves the visible
+        region to centre on the first selection (i.e. cycles up to the first selection).
         """
 
         # Get the selections and the number of them.
@@ -307,8 +315,12 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # Get the region of the middle line.
         middle_line = self.get_middle_line()
 
+        # Get the viewport position. [Note: This is used to help with cycled scrolling.]
+        viewport_vertical_axis = 1
+        viewport_pos_before_centering_y = self.view.viewport_position()[viewport_vertical_axis]
+
         # Starting at the first selection, loop forwards through all the selections looking for the
-        # first selection to occur below the middle line.
+        # first selection to occur below the middle line - if found centre on that selection.
 
         sel_index = 0
         found = False
@@ -323,16 +335,35 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
                 # Scroll the visible region to the line the selection begins on.
                 self.view.show_at_center(sel.begin())
 
-                # All done, quit loop.
+                # Quit loop.
                 found = True
 
             sel_index += 1
 
-        # If no selection is found below the middle line scroll to the first selection.
+        # If no selection was found below the middle line, cycle up to the first selection.
         if not found:
-            sel_index = 0
-            sel = sels[sel_index]
-            self.view.show_at_center(sel.begin())
+            self.scroll_to_first_selection()
+            return
+
+        # IMPORTANT NOTE: Checking to see if the found variable is False can not always be relied on
+        # for cycled scrolling because selections below the middle line on the final page of the
+        # buffer do not trigger cycling up to the first selection. This is because of the way
+        # view.show_at_center() behaves; it sensibly centres the given region in the viewport but
+        # this means that selections can still exist below the middle visible line although only on
+        # the final page of the buffer. This is a known design limitation of the plugin, it can not
+        # scroll lower than the first selection below the middle line on the buffer's final page,
+        # but any such selections are guaranteed to be in the visible region, and cycled scrolling
+        # can still be achieved by examining the viewport's vertical axis position, so this is a
+        # minor limitation. Suggestions on how to get around this would be most welcome. :)
+
+        # Check for cycled scrolling for selections below the middle line on the last page.
+
+        # Get the viewport position.
+        viewport_pos_after_centering_y = self.view.viewport_position()[viewport_vertical_axis]
+
+        # If the viewport's vertical axis position is unchanged, cycle up to the first selection.
+        if viewport_pos_before_centering_y == viewport_pos_after_centering_y:
+            self.scroll_to_first_selection()
 
     # End of def scroll_to_next_selection()
 
@@ -340,7 +371,8 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
     def scroll_to_previous_selection(self):
         """
         scroll_to_previous_selection() moves the visible region to centre on the first selection to
-        occur above the middle_line region, if there is such a selection.
+        occur above the middle_line region. If there is no such selection it moves the visible
+        region to centre on the last selection (i.e. cycles down to the last selection).
         """
 
         # Get the selections and the number of them.
@@ -350,8 +382,12 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # Get the region of the middle line.
         middle_line = self.get_middle_line()
 
+        # Get the viewport position. [Note: This is used to help with cycled scrolling.]
+        viewport_vertical_axis = 1
+        viewport_pos_before_centering_y = self.view.viewport_position()[viewport_vertical_axis]
+
         # Starting at the last selection, loop backwards through all the selections looking for the
-        # first selection to occur above the middle line.
+        # first selection to occur above the middle line - if found centre on that selection.
 
         sel_index = sels_len - 1
         found = False
@@ -366,16 +402,35 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
                 # Scroll the visible region to the line the selection begins on.
                 self.view.show_at_center(sel.begin())
 
-                # All done, quit loop.
+                # Quit loop.
                 found = True
 
             sel_index -= 1
 
-        # If no selection is found above the middle line scroll to the last selection.
+        # If no selection was found above the middle line, cycle down to the last selection.
         if not found:
-            sel_index = sels_len - 1
-            sel = sels[sel_index]
-            self.view.show_at_center(sel.begin())
+            self.scroll_to_last_selection()
+            return
+
+        # IMPORTANT NOTE: Checking to see if the found variable is False can not always be relied on
+        # for cycled scrolling because selections above the middle line on the first page of the
+        # buffer do not trigger cycling down to the last selection. This is because of the way
+        # view.show_at_center() behaves; it sensibly centres the given region in the viewport but
+        # this means that selections can still exist above the middle visible line although only on
+        # the first page of the buffer. This is a known design limitation of the plugin, it can not
+        # scroll higher than the first selection above the middle line on the buffer's first page,
+        # but any such selections are guaranteed to be in the visible region, and cycled scrolling
+        # can still be achieved by examining the viewport's vertical axis position, so this is a
+        # minor limitation. Suggestions on how to get around this would be most welcome. :)
+
+        # Check for cycled scrolling for selections above the middle line on the first page.
+
+        # Get the viewport position.
+        viewport_pos_after_centering_y = self.view.viewport_position()[viewport_vertical_axis]
+
+        # If the viewport's vertical axis position is unchanged, cycle down to the last selection.
+        if viewport_pos_before_centering_y == viewport_pos_after_centering_y:
+            self.scroll_to_last_selection()
 
     # End of def scroll_to_previous_selection()
 
