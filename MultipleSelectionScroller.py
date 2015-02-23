@@ -67,7 +67,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
     CLEAR_TO_LAST          = 80
     CLEAR_TO_NEAREST       = 90
 
-    # For: Operational status.
+    # For: Operational status - values are checked for in operational_status().
 
     MIN_NUM_SELECTIONS     = 1
     MIN_NUM_VISIBLE_LINES  = 1
@@ -238,8 +238,8 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
     def control_scrolling(self):
         """
-        control_scrolling() controls scrolling calling the appropriate method depending on what the
-        value of the scroll_to instance variable has been set to.
+        control_scrolling() controls scrolling calling the appropriate method depending on what
+        value the scroll_to instance variable has been set to.
 
         This method also provides important notes about how this plugin handles the scrolling.
         """
@@ -267,25 +267,6 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # of the visible region, however all remaining selections whether below the middle line (if
         # scrolling forwards) or above the middle line (if scrolling backwards) will definitely be
         # in the visible region on the screen.
-
-        # # Get the visible region, the list of visible lines, and the number of visible lines.
-        # visible_region = self.view.visible_region()
-        # visible_lines = self.view.lines(visible_region)
-        # visible_lines_len = len(visible_lines)
-
-        # # Abort in the unlikely event that fewer than 2 lines are visible.
-        # visible_lines_minimum = 2
-
-        # if visible_lines_len < visible_lines_minimum:
-        #     return
-
-        # # Calculate which line is in the middle of the visible lines, converting to int floors it.
-        # middle_line_num = int(visible_lines_len / 2)
-        # print("middle_line_num: " + str(middle_line_num))
-
-        # # Store the region of the middle line.
-        # middle_line = visible_lines[middle_line_num]
-
 
         # Perform the appropriate Scrolling.
 
@@ -435,12 +416,8 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         scroll_to_first_selection() moves the visible region to centre on the first selection.
         """
 
-        # Get the first selection.
         sel_first_index = 0
-        sel_first = self.sels[sel_first_index]
-
-        # Scroll the visible region to the line the first selection begins on.
-        self.view.show_at_center(sel_first.begin())
+        self.scroll_to_selection_index(sel_first_index)
 
     # End of def scroll_to_first_selection()
 
@@ -450,36 +427,48 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         scroll_to_last_selection() moves the visible region to centre on the last selection.
         """
 
-        # Get the last selection.
         sel_last_index = self.sels_len - 1
-        sel_last = self.sels[sel_last_index]
+        self.scroll_to_selection_index(sel_last_index)
 
-        # Scroll the visible region to the line the last selection begins on.
-        self.view.show_at_center(sel_last.begin())
+    # End of def scroll_to_last_selection()
+
+
+    def scroll_to_selection_index(self, sel_index):
+        """
+        scroll_to_selection_index() moves the visible region to centre on the selection specified
+        by sel_index.
+        """
+
+        # Scroll the visible region to the line of the selection.
+        sel = self.sels[sel_index]
+        self.view.show_at_center(sel.begin())
 
     # End of def scroll_to_last_selection()
 
 
     def control_clearing(self):
         """
-        control_clearing() ...
+        control_clearing() controls clearing the selections and leaving a cursor at the selection
+        specified by the value of the clear_to instance variable.
         """
 
-        # Get the cursor position of the first selection.
+        # Get the first selection and its index.
         if self.clear_to == MultipleSelectionScrollerCommand.CLEAR_TO_FIRST:
-            sel_first_index = 0
-            sel_first = self.sels[sel_first_index]
-            cursor_pos = sel_first.b
+            sel_index = 0
+            sel = self.sels[sel_index]
 
-        # Get the cursor position of the last selection.
+        # Get the last selection and its index.
         elif self.clear_to == MultipleSelectionScrollerCommand.CLEAR_TO_LAST:
-            sel_last_index = self.sels_len - 1
-            sel_last = self.sels[sel_last_index]
-            cursor_pos = sel_last.b
+            sel_index = self.sels_len - 1
+            sel = self.sels[sel_index]
 
-        # Get the cursor position of the selection nearest the middle visible line.
+        # Get the selection nearest the middle visible line and its index.
         elif self.clear_to == MultipleSelectionScrollerCommand.CLEAR_TO_NEAREST:
-            cursor_pos = self.get_cursor_pos_selection_nearest_middle_line()
+            sel_index = self.get_selection_index_nearest_middle_line()
+            sel = self.sels[sel_index]
+
+        # Get the cursor position of the chosen selection.
+        cursor_pos = sel.b
 
         # Clear the selections.
         self.sels.clear()
@@ -493,40 +482,47 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
     # End of def control_clearing()
 
 
-    def get_cursor_pos_selection_nearest_middle_line(self):
+    def get_selection_index_nearest_middle_line(self):
+        """
+        get_selection_index_nearest_middle_line() returns the index of the selection which is
+        nearest to the middle line of the visible lines.
+        """
+
+        # Set the row index of the tuple returned by view.rowcol().
+        row_index = 0
 
         # Get the region of the middle line and get its row number.
         middle_line = self.get_middle_line()
-        middle_line_row, col = self.view.rowcol(middle_line.begin())
+        middle_line_row = self.view.rowcol(middle_line.begin())[row_index]
 
-        # Get the first selection to occur on or below the middle line and get its row number.
-        sel = self.get_first_selection_on_or_below_middle_line(middle_line)
-        sel_first_below_middle_line = sel
-        sel_first_below_middle_line_row, col = self.view.rowcol(sel.begin())
+        # Get the first selection to occur on or below the middle line, its index, and row number.
+        # Note: If no selection on/below the middle line this will be set to the last selection.
+        sel_index_first_below = self.get_selection_index_on_or_below_middle_line(middle_line)
+        sel_first_below = self.sels[sel_index_first_below]
+        sel_row_first_below = self.view.rowcol(sel_first_below.begin())[row_index]
 
-        # Get the first selection to occur on or above the middle line and get its row number.
-        sel = self.get_first_selection_on_or_above_middle_line(middle_line)
-        sel_first_above_middle_line = sel
-        sel_first_above_middle_line_row, col = self.view.rowcol(sel.begin())
+        # Get the first selection to occur on or above the middle line, its index, and row number.
+        # Note: If no selection on/above the middle line this will be set to the first selection.
+        sel_index_first_above = self.get_selection_index_on_or_above_middle_line(middle_line)
+        sel_first_above = self.sels[sel_index_first_above]
+        sel_row_first_above = self.view.rowcol(sel_first_above.begin())[row_index]
 
         # Calculate the distance to the first below and to the first above.
-        distance_to_first_below = sel_first_below_middle_line_row - middle_line_row
-        distance_to_first_above = middle_line_row - sel_first_above_middle_line_row
+        distance_to_first_below = sel_row_first_below - middle_line_row
+        distance_to_first_above = middle_line_row - sel_row_first_above
 
-        # Make sure that there are no negative distances by multiplying by -1.
+        # Remove negative distances (for cases when there are no selections below or above).
         if distance_to_first_below < 0: distance_to_first_below *= -1
         if distance_to_first_above < 0: distance_to_first_above *= -1
 
-        # Establish which selection is nearest the middle line.
-        if distance_to_first_below <= distance_to_first_above:
-            sel_nearest_middle_line = sel_first_below_middle_line
+        # Establish which selection is nearest the middle line and return its index.
+        # Note: If the distances are equidistant the first above is returned.
+        if distance_to_first_above <= distance_to_first_below:
+            return sel_index_first_above
         else:
-            sel_nearest_middle_line = sel_first_above_middle_line
+            return sel_index_first_below
 
-        # Return the cursor position of the selection nearest the middle line.
-        return sel_nearest_middle_line.b
-
-    # End of def get_cursor_pos_selection_nearest_middle_line()
+    # End of def get_selection_index_nearest_middle_line()
 
 
     def get_middle_line(self):
@@ -551,7 +547,12 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
     # End of def get_middle_line()
 
 
-    def get_first_selection_on_or_below_middle_line(self, middle_line):
+    def get_selection_index_on_or_below_middle_line(self, middle_line):
+        """
+        get_selection_index_on_or_below_middle_line() returns the index of the selection that is
+        either on or the first to occur below the middle line. If there is no selection on/below
+        the middle line then the last selection is returned.
+        """
 
         # Starting at the first selection, loop forwards through all the selections looking for the
         # first selection to occur on or below the middle line.
@@ -562,6 +563,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         while sel_index < self.sels_len and not found:
 
             sel = self.sels[sel_index]
+            sel_index_first_on_or_below_or_last = sel_index
 
             # If a selection is found on or below the middle line, quit loop.
             if sel.begin() >= middle_line.begin():
@@ -572,12 +574,17 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # The first selection to be found on or below the middle line is returned. If there is no
         # such selection then the last selection is returned.
 
-        return sel
+        return sel_index_first_on_or_below_or_last
 
-    # End of def get_first_selection_on_or_below_middle_line()
+    # End of def get_selection_index_on_or_below_middle_line()
 
 
-    def get_first_selection_on_or_above_middle_line(self, middle_line):
+    def get_selection_index_on_or_above_middle_line(self, middle_line):
+        """
+        get_selection_index_on_or_above_middle_line() returns the index of the selection that is
+        either on or the first to occur above the middle line. If there is no selection on/above
+        the middle line then the first selection is returned.
+        """
 
         # Starting at the last selection, loop backwards through all the selections looking for the
         # first selection to occur on or above the middle line.
@@ -588,6 +595,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         while sel_index >= 0 and not found:
 
             sel = self.sels[sel_index]
+            sel_index_first_on_or_above_or_first = sel_index
 
             # If a selection is found on or above the middle line, quit loop.
             if sel.begin() <= middle_line.end():
@@ -598,9 +606,9 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # The first selection to be found on or above the middle line is returned. If there is no
         # such selection then the first selection is returned.
 
-        return sel
+        return sel_index_first_on_or_above_or_first
 
-    # End of def get_first_selection_on_or_above_middle_line()
+    # End of def get_selection_index_on_or_above_middle_line()
 
 # End of class MultipleSelectionScrollerCommand()
 
