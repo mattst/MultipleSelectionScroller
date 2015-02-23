@@ -315,8 +315,8 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         middle_line = self.get_middle_line()
 
         # Get the viewport position. [Note: This is used to help with cycled scrolling.]
-        viewport_vertical_axis = 1
-        viewport_pos_before_centering_y = self.view.viewport_position()[viewport_vertical_axis]
+        vertical_axis_index = 1
+        viewport_pos_before_centering = self.view.viewport_position()[vertical_axis_index]
 
         # Starting at the first selection, loop forwards through all the selections looking for the
         # first selection to occur below the middle line - if found centre on that selection.
@@ -358,10 +358,10 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # Check for cycled scrolling for selections below the middle line on the last page.
 
         # Get the viewport position.
-        viewport_pos_after_centering_y = self.view.viewport_position()[viewport_vertical_axis]
+        viewport_pos_after_centering = self.view.viewport_position()[vertical_axis_index]
 
         # If the viewport's vertical axis position is unchanged, cycle up to the first selection.
-        if viewport_pos_before_centering_y == viewport_pos_after_centering_y:
+        if viewport_pos_before_centering == viewport_pos_after_centering:
             self.scroll_to_first_selection()
 
     # End of def scroll_to_next_selection()
@@ -378,8 +378,8 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         middle_line = self.get_middle_line()
 
         # Get the viewport position. [Note: This is used to help with cycled scrolling.]
-        viewport_vertical_axis = 1
-        viewport_pos_before_centering_y = self.view.viewport_position()[viewport_vertical_axis]
+        vertical_axis_index = 1
+        viewport_pos_before_centering = self.view.viewport_position()[vertical_axis_index]
 
         # Starting at the last selection, loop backwards through all the selections looking for the
         # first selection to occur above the middle line - if found centre on that selection.
@@ -421,10 +421,10 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # Check for cycled scrolling for selections above the middle line on the first page.
 
         # Get the viewport position.
-        viewport_pos_after_centering_y = self.view.viewport_position()[viewport_vertical_axis]
+        viewport_pos_after_centering = self.view.viewport_position()[vertical_axis_index]
 
         # If the viewport's vertical axis position is unchanged, cycle down to the last selection.
-        if viewport_pos_before_centering_y == viewport_pos_after_centering_y:
+        if viewport_pos_before_centering == viewport_pos_after_centering:
             self.scroll_to_last_selection()
 
     # End of def scroll_to_previous_selection()
