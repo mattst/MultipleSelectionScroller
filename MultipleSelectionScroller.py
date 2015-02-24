@@ -9,7 +9,7 @@
 #
 # Written by:     Matthew Stanfield
 #
-# Last Edited:    2015-02-22
+# Last Edited:    2015-02-24
 #
 # Version:        n/a
 #
@@ -51,8 +51,8 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
     # For: control mode - assigned to the control_mode instance variable.
 
-    SCROLL                 = 10
-    CLEAR                  = 20
+    SCROLL_TO              = 10
+    CLEAR_TO               = 20
 
     # For: scrolling to selections - assigned to the scroll_to instance variable.
 
@@ -100,11 +100,11 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
             return
 
         # Set the scroll_to instance variable if the command was called using the scroll_to arg,
-        # if so then it will also set the control_mode instance variable to the constant SCROLL.
+        # if so then it will also set the control_mode instance variable to the constant: SCROLL_TO
         self.set_scroll_to(**kwargs)
 
         # Set the clear_to instance variable if the command was called using the clear_to arg,
-        # if so then it will also set the control_mode instance variable to the constant CLEAR.
+        # if so then it will also set the control_mode instance variable to the constant: CLEAR_TO
         self.set_clear_to(**kwargs)
 
         # If control_mode has not been set, the command was called using invalid values.
@@ -115,11 +115,11 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
             return
 
         # Perform the required scrolling operation.
-        elif self.control_mode == MultipleSelectionScrollerCommand.SCROLL:
+        elif self.control_mode == MultipleSelectionScrollerCommand.SCROLL_TO:
             self.control_scrolling()
 
         # Perform the required clearing operation.
-        elif self.control_mode == MultipleSelectionScrollerCommand.CLEAR:
+        elif self.control_mode == MultipleSelectionScrollerCommand.CLEAR_TO:
             self.control_clearing()
 
     # End of def run()
@@ -193,7 +193,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
             return
 
         # Set the control_mode instance variable.
-        self.control_mode = MultipleSelectionScrollerCommand.SCROLL
+        self.control_mode = MultipleSelectionScrollerCommand.SCROLL_TO
 
     # End of def set_scroll_to()
 
@@ -231,7 +231,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
             return
 
         # Set the control_mode instance variable.
-        self.control_mode = MultipleSelectionScrollerCommand.CLEAR
+        self.control_mode = MultipleSelectionScrollerCommand.CLEAR_TO
 
     # End of def set_clear_to()
 
