@@ -315,6 +315,9 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
                 # Scroll the visible region to the line the selection begins on.
                 self.view.show_at_center(sel.begin())
 
+                # Give user feedback of current scroll position.
+                self.status_message_scroll_to(sel_index)
+
                 # Quit loop.
                 found = True
 
@@ -377,6 +380,9 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
                 # Scroll the visible region to the line the selection begins on.
                 self.view.show_at_center(sel.begin())
+
+                # Give user feedback of current scroll position.
+                self.status_message_scroll_to(sel_index)
 
                 # Quit loop.
                 found = True
@@ -443,6 +449,9 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         sel = self.sels[sel_index]
         self.view.show_at_center(sel.begin())
 
+        # Give user feedback of current scroll position.
+        self.status_message_scroll_to(sel_index)
+
     # End of def scroll_to_last_selection()
 
 
@@ -478,6 +487,9 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
         # Move the view to centre on the cursor position.
         self.view.show_at_center(cursor_pos)
+
+        # Give user feedback of clearing scroll position.
+        self.status_message_clear_to(sel_index)
 
     # End of def control_clearing()
 
@@ -609,6 +621,42 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         return sel_index_first_on_or_above_or_first
 
     # End of def get_selection_index_on_or_above_middle_line()
+
+
+    def status_message_scroll_to(self, sel_index):
+        """
+        status_message_scroll_to() displays a status message showing the scroll position.
+        """
+
+        # sel_index is indexed from 0, add 1 for user readability.
+        sel_index += 1
+
+        # Build and display the user feedback status message.
+
+        msg = "multiple_selection_scroller - scroll at selection: {0} of {1}"
+        msg = msg.format(str(sel_index), str(self.sels_len))
+
+        sublime.status_message(msg)
+
+    # End of def status_message_scroll_to()
+
+
+    def status_message_clear_to(self, sel_index):
+        """
+        status_message_clear_to() displays a status message showing the cleared selection position.
+        """
+
+        # sel_index is indexed from 0, add 1 for user readability.
+        sel_index += 1
+
+        # Build and display the user feedback status message.
+
+        msg = "multiple_selection_scroller - cleared at selection: {0} of {1}"
+        msg = msg.format(str(sel_index), str(self.sels_len))
+
+        sublime.status_message(msg)
+
+    # End of def status_message_clear_to()
 
 # End of class MultipleSelectionScrollerCommand()
 
