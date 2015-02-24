@@ -1,3 +1,4 @@
+#
 # Name:           MultipleSelectionScroller
 #
 # File:           MultipleSelectionScroller.py
@@ -15,7 +16,7 @@
 #
 # ST Command:     multiple_selection_scroller
 #
-# Arg Required:   Either scroll_to or clear_to must be used but not both.
+# Arg Required:   Either scroll_to OR clear_to must be used but not both.
 #
 # Arg:            scroll_to  : Scroll to where (placing on middle line):
 # Value:          next       : Forwards to the next selection
@@ -28,12 +29,14 @@
 # Value:          last       : The last (bottom) selection
 # Value:          nearest    : The selection nearest the middle line
 #
-# Settings Examples:
+# Optional Arg:   feedback   : Controls whether to display status messages:
+# Value:          true       : Display status messages (default)
+# Value:          false      : Do not display status messages
 #
-# Default (OS).sublime-keymap file:
-#
-# { "keys": [""], "command": "multiple_selection_scroller", "args": {"scroll_to": ""} }
-# { "keys": [""], "command": "multiple_selection_scroller", "args": {"clear_to": ""} }
+# Settings File:  Displaying status messages can also be set in a settings file.
+# Setting:        MultipleSelectionScroller.feedback
+# Value:          true       : Display status messages (default)
+# Value:          false      : Do not display status messages
 #
 
 
@@ -51,26 +54,31 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
     # For: control mode - assigned to the control_mode instance variable.
 
-    SCROLL_TO              = 10
-    CLEAR_TO               = 20
+    SCROLL_TO              = 100
+    CLEAR_TO               = 110
 
     # For: scrolling to selections - assigned to the scroll_to instance variable.
 
-    SCROLL_TO_PREVIOUS     = 30
-    SCROLL_TO_NEXT         = 40
-    SCROLL_TO_FIRST        = 50
-    SCROLL_TO_LAST         = 60
+    SCROLL_TO_PREVIOUS     = 120
+    SCROLL_TO_NEXT         = 130
+    SCROLL_TO_FIRST        = 140
+    SCROLL_TO_LAST         = 150
 
     # For: cursor position after clearing selections - assigned to the clear_to instance variable.
 
-    CLEAR_TO_FIRST         = 70
-    CLEAR_TO_LAST          = 80
-    CLEAR_TO_NEAREST       = 90
+    CLEAR_TO_FIRST         = 160
+    CLEAR_TO_LAST          = 170
+    CLEAR_TO_NEAREST       = 180
+
+    # For: user feedback status messages - assigned to the user_feedback instance variable.
+
+    FEEDBACK_VERBOSE       = 190
+    FEEDBACK_QUIET         = 200
 
     # For: Operational status - values are checked for in operational_status().
 
     MIN_NUM_SELECTIONS     = 1
-    MIN_NUM_VISIBLE_LINES  = 1
+    MIN_NUM_VISIBLE_LINES  = 2
 
 
     def run(self, edit, **kwargs):
@@ -78,7 +86,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         run() is called when the command is run - it controls the plugin's flow of execution.
         """
 
-        # Define the 5 instance variables (no other instance variables are used).
+        # Define the 6 instance variables (no other instance variables are used).
 
         # Holds the control mode - set by either: set_scroll_to() or set_clear_to()
         self.control_mode = None
@@ -89,33 +97,38 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # Holds which clear operation to perform (if any) - set by: set_clear_to()
         self.clear_to = None
 
+        # Holds whether to display user feedback (status messages) - set by: set_user_feedback()
+        self.user_feedback = None
+
         # Holds the current selections.
         self.sels = self.view.sel()
 
         # Holds the length of the current selections.
         self.sels_len = len(self.sels)
 
-        # Check to make sure that there are selections and visible lines.
-        if not self.operational_status():
-            return
+        # Handle command args and settings, and check them.
 
         # Set the scroll_to instance variable if the command was called using the scroll_to arg,
-        # if so then it will also set the control_mode instance variable to the constant: SCROLL_TO
+        # if so then it will also set the control_mode instance variable.
         self.set_scroll_to(**kwargs)
 
         # Set the clear_to instance variable if the command was called using the clear_to arg,
-        # if so then it will also set the control_mode instance variable to the constant: CLEAR_TO
+        # if so then it will also set the control_mode instance variable.
         self.set_clear_to(**kwargs)
 
-        # If control_mode has not been set, the command was called using invalid values.
-        if self.control_mode is None:
-            msg = "multiple_selection_scroller: invalid or missing command args"
-            print(msg)
-            sublime.status_message(msg)
+        # Set the user_feedback instance variable. In order of priority: to the value given in the
+        # command's args, to the value given in the user's settings file, or to the default.
+        self.set_user_feedback(**kwargs)
+
+        # Check to make sure that control_mode has been set and that there are both selections and
+        # visible lines.
+        if not self.operational_status():
             return
 
+        # All present and correct - proceed to...
+
         # Perform the required scrolling operation.
-        elif self.control_mode == MultipleSelectionScrollerCommand.SCROLL_TO:
+        if self.control_mode == MultipleSelectionScrollerCommand.SCROLL_TO:
             self.control_scrolling()
 
         # Perform the required clearing operation.
@@ -127,10 +140,20 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
     def operational_status(self):
         """
-        operational_status() checks that the number of selections and the number of visible lines
-        are both greater than the required minimum, displaying a status message and returning false
-        if not.
+        operational_status() checks that everything is in place to proceed with the selection
+        scrolling or clearing. It displays a status warning message and returns false if there's a
+        problem, otherwise it returns true. It checks that control_mode has been set, and that the
+        number of selections and the number of visible lines are greater than the required minimum.
         """
+
+        # Return false if control_mode has not been set, invalid command args were used.
+        # In this case also output msg to the console - to aid user investigation.
+
+        if self.control_mode is None:
+            msg = "multiple_selection_scroller: invalid or missing command args"
+            print(msg)
+            sublime.status_message(msg)
+            return False
 
         # Return false if there are no selections, clearly there is nothing for this plugin to do.
 
@@ -139,19 +162,19 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
             sublime.status_message(msg)
             return False
 
-        # Get the the number of visible lines and return false if fewer than the minimum.
+        # Return false if the number of visible lines is fewer than the minimum.
         # Note: There are design reasons for this check (calculating the middle line).
+        # This check also prevents the plugin from running in a panel or the command palette.
 
         visible_region = self.view.visible_region()
-        visible_lines = self.view.lines(visible_region)
-        visible_lines_len = len(visible_lines)
+        visible_lines_len = len(self.view.lines(visible_region))
 
         if visible_lines_len < MultipleSelectionScrollerCommand.MIN_NUM_VISIBLE_LINES:
             msg = "multiple_selection_scroller: too few visible lines"
             sublime.status_message(msg)
             return False
 
-        # All okay.
+        # All OK.
         return True
 
     # End of def operational_status()
@@ -163,11 +186,14 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         "scroll_to" in the kwargs dictionary and sets the control_mode instance variable.
         """
 
-        # If available get the command's "scroll_to" arg from the kwargs dictionary.
-        if "scroll_to" in kwargs:
-            scroll_to_arg_val = kwargs.get("scroll_to")
+        # Set the scroll_to arg name.
+        scroll_to_arg_name = "scroll_to"
 
-        # "scroll_to" is not in the dictionary.
+        # If available get the command's scroll_to arg from the kwargs dictionary.
+        if scroll_to_arg_name in kwargs:
+            scroll_to_arg_val = kwargs.get(scroll_to_arg_name)
+
+        # The scroll_to arg is not in the dictionary.
         else:
             return
 
@@ -204,11 +230,14 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         "clear_to" in the kwargs dictionary and sets the control_mode instance variable.
         """
 
-        # If available get the command's "clear_to" arg from the kwargs dictionary.
-        if "clear_to" in kwargs:
-            clear_to_arg_val = kwargs.get("clear_to")
+        # Set the clear_to arg name.
+        clear_to_arg_name = "clear_to"
 
-        # "clear_to" is not in the dictionary.
+        # If available get the command's clear_to arg from the kwargs dictionary.
+        if clear_to_arg_name in kwargs:
+            clear_to_arg_val = kwargs.get(clear_to_arg_name)
+
+        # The clear_to arg is not in the dictionary.
         else:
             return
 
@@ -234,6 +263,58 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         self.control_mode = MultipleSelectionScrollerCommand.CLEAR_TO
 
     # End of def set_clear_to()
+
+
+    def set_user_feedback(self, **kwargs):
+        """
+        set_user_feedback() sets the user_feedback instance variable to the value held by "feedback"
+        in the kwargs dictionary, to the value held by the "MultipleSelectionScroller.feedback"
+        setting in the user's settings file, or to the default, in that order of priority.
+        """
+
+        # Set the default.
+        feedback_default = True
+
+        # First check if the feedback arg was used in the command's args, this has top priority.
+
+        # Set the feedback arg name.
+        feedback_arg_name = "feedback"
+
+        # If available get the command's feedback arg from the kwargs dictionary.
+        if feedback_arg_name in kwargs:
+
+            feedback_arg_val = kwargs.get(feedback_arg_name)
+
+            # If the arg was assigned a boolean value, set user_feedback and return, all done.
+            if isinstance(feedback_arg_val, bool):
+
+                if feedback_arg_val:
+                    self.user_feedback = MultipleSelectionScrollerCommand.FEEDBACK_VERBOSE
+                    return
+                else:
+                    self.user_feedback = MultipleSelectionScrollerCommand.FEEDBACK_QUIET
+                    return
+
+        # If the feedback arg was not in the kwargs dictionary or not set to a boolean value,
+        # then check if the user has used the feedback setting in their settings.
+
+        # Set the feedback settings name.
+        feedback_setting_name = "MultipleSelectionScroller.feedback"
+
+        # Get the user's feedback setting, if not in settings then use the default.
+        feedback_setting = self.view.settings().get(feedback_setting_name, feedback_default)
+
+        # Check the setting was assigned a boolean value, if not then use the default.
+        if not isinstance(feedback_setting, bool):
+            feedback_setting = feedback_default
+
+        # Finally set user_feedback.
+        if feedback_setting:
+            self.user_feedback = MultipleSelectionScrollerCommand.FEEDBACK_VERBOSE
+        else:
+            self.user_feedback = MultipleSelectionScrollerCommand.FEEDBACK_QUIET
+
+    # End of def set_user_feedback()
 
 
     def control_scrolling(self):
@@ -315,7 +396,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
                 # Scroll the visible region to the line the selection begins on.
                 self.view.show_at_center(sel.begin())
 
-                # Give user feedback of current scroll position.
+                # Give user feedback about the current selection scroll position.
                 self.status_message_scroll_to(sel_index)
 
                 # Quit loop.
@@ -381,7 +462,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
                 # Scroll the visible region to the line the selection begins on.
                 self.view.show_at_center(sel.begin())
 
-                # Give user feedback of current scroll position.
+                # Give user feedback about the current selection scroll position.
                 self.status_message_scroll_to(sel_index)
 
                 # Quit loop.
@@ -449,7 +530,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         sel = self.sels[sel_index]
         self.view.show_at_center(sel.begin())
 
-        # Give user feedback of current scroll position.
+        # Give user feedback about the current selection scroll position.
         self.status_message_scroll_to(sel_index)
 
     # End of def scroll_to_last_selection()
@@ -488,7 +569,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # Move the view to centre on the cursor position.
         self.view.show_at_center(cursor_pos)
 
-        # Give user feedback of clearing scroll position.
+        # Give user feedback about the selection clearing position.
         self.status_message_clear_to(sel_index)
 
     # End of def control_clearing()
@@ -519,11 +600,12 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         sel_first_above = self.sels[sel_index_first_above]
         sel_row_first_above = self.view.rowcol(sel_first_above.begin())[row_index]
 
-        # Calculate the distance to the first below and to the first above.
+        # Calculate the distance from the middle row to the row of the first selection below and
+        # the first selection above.
         distance_to_first_below = sel_row_first_below - middle_line_row
         distance_to_first_above = middle_line_row - sel_row_first_above
 
-        # Remove negative distances (for cases when there are no selections below or above).
+        # Convert negative distances to positive (no selection below or above).
         if distance_to_first_below < 0: distance_to_first_below *= -1
         if distance_to_first_above < 0: distance_to_first_above *= -1
 
@@ -551,7 +633,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # Calculate which line is in the middle of the visible lines, converting to int floors it.
         middle_line_num = int(visible_lines_len / 2)
 
-        # Store the region of the middle line.
+        # Return the region of the middle line.
         middle_line = visible_lines[middle_line_num]
 
         return middle_line
@@ -625,8 +707,12 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
     def status_message_scroll_to(self, sel_index):
         """
-        status_message_scroll_to() displays a status message showing the scroll position.
+        status_message_scroll_to() displays a status message showing the scroll selection position.
         """
+
+        # Don't display the status message if the user doesn't want feedback.
+        if self.user_feedback == MultipleSelectionScrollerCommand.FEEDBACK_QUIET:
+            return
 
         # sel_index is indexed from 0, add 1 for user readability.
         sel_index += 1
@@ -645,6 +731,10 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         """
         status_message_clear_to() displays a status message showing the cleared selection position.
         """
+
+        # Don't display the status message if the user doesn't want feedback.
+        if self.user_feedback == MultipleSelectionScrollerCommand.FEEDBACK_QUIET:
+            return
 
         # sel_index is indexed from 0, add 1 for user readability.
         sel_index += 1
