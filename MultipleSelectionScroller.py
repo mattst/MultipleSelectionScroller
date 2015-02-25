@@ -10,7 +10,7 @@
 #
 # Written by:     Matthew Stanfield
 #
-# Last Edited:    2015-02-24
+# Last Edited:    2015-02-25
 #
 # Version:        n/a
 #
@@ -46,8 +46,13 @@ import sublime_plugin
 
 class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
     """
-    The MultipleSelectionScrollerCommand class is a Sublime Text plugin which...
-
+    The MultipleSelectionScrollerCommand class is a Sublime Text plugin which provides commands to
+    allow scrolling forwards and backwards through the current selections, by moving the visible
+    region so that the next/previous selection is centred on the middle line. Cycling from the last
+    selection up to the first and visa-versa is automatic. Commands to scroll straight to the first
+    and last selection complete its scrolling functionality. It also provides commands to clear the
+    selections while leaving a single cursor at the first selection, the last selection, or at the
+    selection on or nearest to the middle line.
     """
 
     # Definitions of the various constants used:
