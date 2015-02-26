@@ -38,6 +38,38 @@
 # Value:          true       : Display status messages (default)
 # Value:          false      : Do not display status messages
 #
+# Suggested keys for Default (OS).sublime-keymap file (the ones I use):
+#
+# Scroll to previous/next using "alt+[" and "alt+]":
+#
+# [The '[' and ']' keys are already used for line indenting and code folding, using them for
+# multi-selection scrolling in conjunction with alt seems both convenient and appropriate.]
+#
+# { "keys": ["alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous"} },
+# { "keys": ["alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next"} },
+#
+# Scroll to first/last using "alt+k", "alt+[" and "alt+k", "alt+]":
+#
+# { "keys": ["alt+k", "alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "first"} },
+# { "keys": ["alt+k", "alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "last"} },
+#
+# Clear to first/last/nearest using ctrl+k", "ctrl+[", "ctrl+k", "ctrl+]", and "ctrl+k", "ctrl+#":
+#
+# { "keys": ["ctrl+k", "ctrl+["], "command": "multiple_selection_scroller", "args": {"clear_to": "first"} },
+# { "keys": ["ctrl+k", "ctrl+]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last"} },
+# { "keys": ["ctrl+k", "ctrl+#"], "command": "multiple_selection_scroller", "args": {"clear_to": "nearest"} },
+#
+# Clear to nearest (duplication) using "alt+k", "alt+#":
+#
+# [Clearing to nearest is often used during scrolling, so using "alt+k" rather than moving the key
+# being held down to "ctrl" is both convenient and quicker.]
+#
+# { "keys": ["alt+k", "alt+#"], "command": "multiple_selection_scroller", "args": {"clear_to": "nearest"} },
+#
+# The use of '#' in the two 'clear to nearest' examples above is because the '#' key is to the right
+# of the ']' key on my (British) keyboard. On a USA keyboard the '\' key occupies that position. On
+# some Mac keyboards there is no key at all on the right of the ']' key. Use whatever you want. :)
+#
 
 
 import sublime
@@ -83,7 +115,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
     # For: Operational status - values are checked for in operational_status().
 
     MIN_NUM_SELECTIONS     = 1
-    MIN_NUM_VISIBLE_LINES  = 2
+    MIN_NUM_VISIBLE_LINES  = 3
 
 
     def run(self, edit, **kwargs):
