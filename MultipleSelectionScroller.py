@@ -10,7 +10,7 @@
 #
 # Written by:     Matthew Stanfield
 #
-# Last Edited:    2015-02-25
+# Last Edited:    2015-02-26
 #
 # Version:        n/a
 #
@@ -51,8 +51,8 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
     region so that the next/previous selection is centred on the middle line. Cycling from the last
     selection up to the first and visa-versa is automatic. Commands to scroll straight to the first
     and last selection complete its scrolling functionality. It also provides commands to clear the
-    selections while leaving a single cursor at the first selection, the last selection, or at the
-    selection on or nearest to the middle line.
+    selections whilst leaving a single cursor at the first selection, the last selection, or at the
+    selection on, or nearest to, the middle line.
     """
 
     # Definitions of the various constants used:
@@ -538,7 +538,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # Give user feedback about the current selection scroll position.
         self.status_message_scroll_to(sel_index)
 
-    # End of def scroll_to_last_selection()
+    # End of def scroll_to_selection_index()
 
 
     def control_clearing(self):
@@ -635,10 +635,44 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         visible_lines = self.view.lines(visible_region)
         visible_lines_len = len(visible_lines)
 
-        # Calculate which line is in the middle of the visible lines, converting to int floors it.
+        # Calculate which line is in the middle of the visible lines.
+        #
+        # IMPORTANT NOTE: The number of visible lines changes dynamically depending on the viewport
+        # position Sublime Text chooses when centring using show_at_center(point); if a line is even
+        # partially obscured it is no longer considered visible, thus the number of visible lines
+        # can change from odd to even without any alteration to the window size. The algorithm used
+        # by show_at_center(point) is unknown but it is essential for the operation of this plugin
+        # that the middle line calculated below corresponds exactly or at least very closely with
+        # the position used by show_at_center(point) - if it does not then scrolling can get 'stuck'
+        # on a selection (unable to scroll either below it or above it, though not both).
+        #
+        # With some trial and error, it has been established that subtracting 1 from odd numbers, to
+        # make them even, works perfectly. Ironically dividing an even number of lines by 2 means
+        # there is no dead centre. Consider the following (noting that visible_lines is 0 indexed):
+        #
+        # visible_lines_len = 10    ...    10 / 2 = 5
+        # Indexes 0 to 4 == 5 (lines above 'middle line')
+        # Indexes 6 to 9 == 4 (lines below 'middle line')
+        #
+        # The same calculation is done when visible_lines_len = 11, because 1 is subtracted, however
+        # there are now in fact 11 lines so:
+        #
+        # Indexes 0 to 4  == 5 (lines above middle line)
+        # Indexes 6 to 10 == 5 (lines below middle line)
+        #
+        # Regardless of this discrepancy it works perfectly in both Sublime Text 2 and 3; however
+        # getting it right did cause a few minor problems, and a detailed explanation was thought
+        # worthy of inclusion to aid future development.
+
+        # Subtract 1 from odd numbers and divide by 2.
+
+        if  visible_lines_len % 2 == 1:
+            visible_lines_len -= 1
+
         middle_line_num = int(visible_lines_len / 2)
 
         # Return the region of the middle line.
+
         middle_line = visible_lines[middle_line_num]
 
         return middle_line
