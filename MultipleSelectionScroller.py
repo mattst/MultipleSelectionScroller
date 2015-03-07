@@ -129,10 +129,15 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
     CLEAR_TO_LAST          = 170
     CLEAR_TO_MIDDLE        = 180
 
+    # For: scroll cycling - assigned to the scroll_cycling instance variable.
+
+    SCROLL_CYCLING_ON      = 190
+    SCROLL_CYCLING_OFF     = 200
+
     # For: user feedback status messages - assigned to the user_feedback instance variable.
 
-    FEEDBACK_VERBOSE       = 190
-    FEEDBACK_QUIET         = 200
+    FEEDBACK_VERBOSE       = 210
+    FEEDBACK_QUIET         = 220
 
     # For: Operational status - values are checked for in operational_status().
 
@@ -145,7 +150,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         run() is called when the command is run - it controls the plugin's flow of execution.
         """
 
-        # Define the 6 instance variables (no other instance variables are used).
+        # Define the 7 instance variables (no other instance variables are used).
 
         # Holds the control mode - set by either: set_scroll_to() or set_clear_to()
         self.control_mode = None
@@ -155,6 +160,9 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
         # Holds which clear operation to perform (if any) - set by: set_clear_to()
         self.clear_to = None
+
+        # Holds whether to perform scroll cycling - set by: set_scroll_cycling()
+        self.scroll_cycling = None
 
         # Holds whether to display user feedback status messages - set by: set_user_feedback()
         self.user_feedback = None
@@ -175,9 +183,13 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # if so then it will also set the control_mode instance variable.
         self.set_clear_to(**kwargs)
 
+        # Set the scroll_cycling instance variable. Either according to the value in the user's
+        # settings file or to the default.
+        self.set_scroll_cycling()
+
         # Set the user_feedback instance variable. Either according to the value in the user's
         # settings file or to the default.
-        self.set_user_feedback(**kwargs)
+        self.set_user_feedback()
 
         # Check to make sure that control_mode has been set and that there are both selections and
         # visible lines.
@@ -326,7 +338,35 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
     # End of def set_clear_to()
 
 
-    def set_user_feedback(self, **kwargs):
+    def set_scroll_cycling(self):
+        """
+        set_scroll_cycling() sets the scroll_cycling instance variable according to the value of the
+        "MultipleSelectionScroller.scroll_cycling" setting in the user's settings file, or to the
+        default.
+        """
+
+        # Set scroll_cycling to the default.
+        self.scroll_cycling = MultipleSelectionScrollerCommand.SCROLL_CYCLING_ON
+
+        # Set the name of the scroll cycling setting.
+        scroll_cycling_setting_name = "MultipleSelectionScroller.scroll_cycling"
+
+        # Get the user's scroll cycling setting, if not in settings then set to None.
+        scroll_cycling_setting_val = self.view.settings().get(scroll_cycling_setting_name, None)
+
+        # If used in the settings then scroll_cycling_setting_val will be boolean.
+
+        if isinstance(scroll_cycling_setting_val, bool):
+
+            if scroll_cycling_setting_val:
+                self.scroll_cycling = MultipleSelectionScrollerCommand.SCROLL_CYCLING_ON
+            else:
+                self.scroll_cycling = MultipleSelectionScrollerCommand.SCROLL_CYCLING_OFF
+
+    # End of def set_scroll_cycling()
+
+
+    def set_user_feedback(self):
         """
         set_user_feedback() sets the user_feedback instance variable according to the value of the
         "MultipleSelectionScroller.quiet" setting in the user's settings file, or to the default.
@@ -341,7 +381,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # Get the user's quiet setting, if not in settings then set to None.
         quiet_setting_val = self.view.settings().get(quiet_setting_name, None)
 
-        # If the quiet setting is in the settings then quiet_setting_val will be boolean.
+        # If used in the settings then quiet_setting_val will be boolean.
 
         if isinstance(quiet_setting_val, bool):
 
@@ -450,6 +490,10 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
             sel_index += 1
 
+        # Don't perform cycled scrolling if it has been set to off.
+        if self.scroll_cycling == MultipleSelectionScrollerCommand.SCROLL_CYCLING_OFF:
+            return
+
         # If no selection was found below the middle line, cycle up to the first selection.
         if not found:
             self.scroll_to_first_selection()
@@ -520,6 +564,10 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
                 found = True
 
             sel_index -= 1
+
+        # Don't perform cycled scrolling if it has been set to off.
+        if self.scroll_cycling == MultipleSelectionScrollerCommand.SCROLL_CYCLING_OFF:
+            return
 
         # If no selection was found above the middle line, cycle down to the last selection.
         if not found:

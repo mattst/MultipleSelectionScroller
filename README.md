@@ -147,7 +147,7 @@ Recommended keys:
     MultipleSelectionScroller.cycle    false    Scroll cycling disabled
     -------------------------------------------------------------------------------
 
-
+"MultipleSelectionScroller.scroll_cycling"
 
 # Optional Arg:   quiet      : Controls whether to display status messages:
 # -------------------------------------------------------------------------------------
