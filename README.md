@@ -22,9 +22,10 @@ line on the first page of the buffer can not be moved to the middle line, Sublim
 'scroll_above_beginning' setting. If the 'scroll_past_end' setting is set to true, which it is by
 default, then the first selection below the middle line on the last page of the buffer can be moved
 to the middle line, but any subsequent selections can not be. In both cases any remaining selections
-either above or below the middle line will be in the visible region on the screen. It should be
-noted that this limitation does not intefere with scroll cycling which continues to work correctly.
-[In real-world usage I have not found this inconvenient when it occurs, which is rarely.]
+either above or below the middle line will be in the visible region on the screen and highlighted so
+easy to spot. It should be noted that this limitation does not intefere with scroll cycling which
+continues to work correctly. [In real-world usage I have not found this inconvenient when it occurs,
+which is rarely.]
 
 
 #### Requirements / Tested
@@ -53,9 +54,10 @@ Or install manually:
 
 #### Setup
 
-The Multiple Selection Scroller plugin intentionally does not provide a keymap file to set its keys.
-This is for two reasons; there are now so many plugins which the chosen keys could conflict with and
-one of the key combinations (in the recommended keys) is dependant on the user's keyboard layout.
+The Multiple Selection Scroller plugin does not provide a keymap file to set its keys. Choosing keys
+that will suit all users is not possible - the chosen keys will always interfere with the existing
+keys of some users. Various suggested key mappings are shown below - these can be copied and pasted
+into your `Default (OS).sublime-keymap` file and altered if desired.
 
 The '[' and ']' keys are already used for line indenting and code folding, using them for multi-
 selection scrolling and clearing in various key combinations seems both convenient and appropriate.
@@ -94,8 +96,108 @@ Recommended keys:
     ctrl+k, ctrl+/    ctrl+k, ctrl+shift+]    ctrl+k, ]    alk+k, ]
     --------------------------------------------------------------------------------------
 
-    { "keys": ["alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous"} },
-    { "keys": ["alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next"} },
+
+#### Reference
+
+    Command name: multiple_selection_scroller
+
+    Either a scroll_to or a clear_to arg MUST be used in the command call.
+
+    scroll_to - move the visible region centering the selection on the middle line.
+    -------------------------------------------------------------------------------
+    Command Arg      Value                  Description
+    -------------------------------------------------------------------------------
+    scroll_to        previous      Scroll to previous selection (backwards)
+    scroll_to        next          Scroll to next selection (forwards)
+    scroll_to        first         Scroll to first selection
+    scroll_to        last          Scroll to last selection
+
+    clear_to - clear the selections leaving a single cursor at the chosen location.
+    -------------------------------------------------------------------------------
+    Command Arg      Value                  Description
+    -------------------------------------------------------------------------------
+    clear_to         first         Clear to first selection
+    clear_to         last          Clear to last selection
+    clear_to         middle        Clear to selection on/nearest the middle line
+    -------------------------------------------------------------------------------
+
+    quiet - control display of user feedback status messages (this is optional)
+    -------------------------------------------------------------------------------
+    Command Arg      Value                  Description
+    -------------------------------------------------------------------------------
+    quiet            true          Do not display status messages
+    quiet            false         Display status messages (default)
+    -------------------------------------------------------------------------------
+
+    Two settings may optionally be used in the Preferences.sublime-settings file.
+
+    MultipleSelectionScroller.quiet - control user feedback status messages
+    -------------------------------------------------------------------------------
+    Setting                            Value             Description
+    -------------------------------------------------------------------------------
+    MultipleSelectionScroller.quiet    true     Do not display status messages
+    MultipleSelectionScroller.quiet    false    Display status messages (default)
+    -------------------------------------------------------------------------------
+
+    MultipleSelectionScroller.cycle - control scroll cycling
+    -------------------------------------------------------------------------------
+    Setting                            Value             Description
+    -------------------------------------------------------------------------------
+    MultipleSelectionScroller.cycle    true     Scroll cycling enabled (default)
+    MultipleSelectionScroller.cycle    false    Scroll cycling disabled
+    -------------------------------------------------------------------------------
+
+
+
+# Optional Arg:   quiet      : Controls whether to display status messages:
+# -------------------------------------------------------------------------------------
+# Value:          true       : Do not display status messages
+# Value:          false      : Display status messages (default)
+#
+# Settings File:  Optionally, whether to display status messages can be set in the
+#                 Preferences.sublime-settings settings file.
+# -------------------------------------------------------------------------------------
+# Setting:        MultipleSelectionScroller.quiet
+# Value:          true       : Do not display status messages
+# Value:          false      : Display status messages (default)
+#
+
+
+#### Reference Table
+
+    --------------------------------------------------------------------------------------
+    scroll_to commands move the visible region centering the selection on the middle line.
+    --------------------------------------------------------------------------------------
+    Description                                      Command Arg      Value
+    --------------------------------------------------------------------------------------
+    Scroll to previous selection (backwards)         scroll_to        previous
+    Scroll to next selection (forwards)              scroll_to        next
+    Scroll to first selection                        scroll_to        first
+    Scroll to last selection                         scroll_to        last
+
+    --------------------------------------------------------------------------------------
+    clear_to commands clear the selections leaving a single cursor at the chosen location.
+    --------------------------------------------------------------------------------------
+    Description                                      Command Arg      Value
+    --------------------------------------------------------------------------------------
+    Clear to first selection                         clear_to         first
+    Clear to last selection                          clear_to         last
+    Clear to selection (on/nearest) middle line      clear_to         middle
+    --------------------------------------------------------------------------------------
+
+
+
+    --------------------------------------------------------------------------------------
+    clear_to commands clear the selections leaving a single cursor at the chosen location.
+    --------------------------------------------------------------------------------------
+    Description                                      Command Arg      Value
+    --------------------------------------------------------------------------------------
+    Clear to first selection                         clear_to         first
+    Clear to last selection                          clear_to         last
+    Clear to selection (on/nearest) middle line      clear_to         middle
+    --------------------------------------------------------------------------------------
+
+
 
 
 Mac Key Notes:
