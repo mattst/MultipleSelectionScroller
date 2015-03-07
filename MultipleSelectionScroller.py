@@ -11,7 +11,7 @@
 #
 # Written by:     Matthew Stanfield
 #
-# Last Edited:    2015-03-06
+# Last Edited:    2015-03-07
 #
 # Version:        n/a
 #
@@ -31,11 +31,6 @@
 # Value:          first      : The first (top) selection
 # Value:          last       : The last (bottom) selection
 # Value:          middle     : The selection on, or nearest to, the visible middle line
-#
-# Optional Arg:   quiet      : Controls whether to display status messages:
-# -------------------------------------------------------------------------------------
-# Value:          true       : Do not display status messages
-# Value:          false      : Display status messages (default)
 #
 # Settings File:  Optionally, whether to display status messages can be set in the
 #                 Preferences.sublime-settings settings file.
@@ -99,7 +94,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
     User feedback is given in the form of status messages, telling the user which selection has just
     been placed on the middle line if scrolling (e.g. "scroll at selection: 5 of 11"), or at which
     selection the cursor has been left if clearing (e.g. "cleared at selection: 5 of 11"). User
-    feedback can be disabled by using a command arg or with a setting.
+    feedback can be disabled by the use of a setting.
 
     There is a known design limitation of this plugin. To move selections to the middle line the
     plugin uses the Sublime View class method show_at_center(). There are some circumstances when
@@ -180,8 +175,8 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # if so then it will also set the control_mode instance variable.
         self.set_clear_to(**kwargs)
 
-        # Set the user_feedback instance variable. In order of priority: according to the value in
-        # the command's args, to the value given in the user's settings file, or to the default.
+        # Set the user_feedback instance variable. Either according to the value in the user's
+        # settings file or to the default.
         self.set_user_feedback(**kwargs)
 
         # Check to make sure that control_mode has been set and that there are both selections and
@@ -333,57 +328,27 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
     def set_user_feedback(self, **kwargs):
         """
-        set_user_feedback() sets the user_feedback instance variable according to the value held by
-        "quiet" in the kwargs dictionary, held by the "MultipleSelectionScroller.quiet" setting in
-        the user's settings file, or to the default; in that order of priority.
+        set_user_feedback() sets the user_feedback instance variable according to the value of the
+        "MultipleSelectionScroller.quiet" setting in the user's settings file, or to the default.
         """
 
-        # Set the names of the quiet arg and the quiet setting.
-        quiet_arg_name = "quiet"
+        # Set user_feedback to the default.
+        self.user_feedback = MultipleSelectionScrollerCommand.FEEDBACK_VERBOSE
+
+        # Set the name of the quiet setting.
         quiet_setting_name = "MultipleSelectionScroller.quiet"
-
-        # First check if the quiet arg was used in the command's args, this has top priority.
-
-        # If available get the command's quiet arg from the kwargs dictionary.
-        if quiet_arg_name in kwargs:
-
-            quiet_arg_val = kwargs.get(quiet_arg_name)
-
-            # If the arg was assigned a boolean value, set user_feedback and return, all done.
-            if isinstance(quiet_arg_val, bool):
-
-                if quiet_arg_val:
-                    self.user_feedback = MultipleSelectionScrollerCommand.FEEDBACK_QUIET
-                else:
-                    self.user_feedback = MultipleSelectionScrollerCommand.FEEDBACK_VERBOSE
-
-                # All done.
-                return
-
-        # If the quiet arg was not in the kwargs dictionary or not set to a boolean value,
-        # then check if the user has used the quiet setting in their settings.
 
         # Get the user's quiet setting, if not in settings then set to None.
         quiet_setting_val = self.view.settings().get(quiet_setting_name, None)
 
-        # If the quiet setting is in the settings.
-        if quiet_setting_val is not None:
+        # If the quiet setting is in the settings then quiet_setting_val will be boolean.
 
-            # If the setting was assigned a boolean value, set user_feedback and return, all done.
-            if isinstance(quiet_setting_val, bool):
+        if isinstance(quiet_setting_val, bool):
 
-                if quiet_setting_val:
-                    self.user_feedback = MultipleSelectionScrollerCommand.FEEDBACK_QUIET
-                else:
-                    self.user_feedback = MultipleSelectionScrollerCommand.FEEDBACK_VERBOSE
-
-                # All done.
-                return
-
-        # Neither the command's quiet arg nor the quiet setting was used (or not correctly used) so
-        # set user_feedback to the default.
-
-        self.user_feedback = MultipleSelectionScrollerCommand.FEEDBACK_VERBOSE
+            if quiet_setting_val:
+                self.user_feedback = MultipleSelectionScrollerCommand.FEEDBACK_QUIET
+            else:
+                self.user_feedback = MultipleSelectionScrollerCommand.FEEDBACK_VERBOSE
 
     # End of def set_user_feedback()
 
