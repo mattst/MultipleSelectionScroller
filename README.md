@@ -2,6 +2,24 @@
 ## Multiple Selection Scroller - Plugin for Sublime Text v.2 and v.3
 
 
+### Features
+
+A quick overview of what this plugin can do.
+
+- Scroll to selection commands - center chosen selection on the middle line:
+  1. Scroll to previous selection (backwards)
+  2. Scroll to next selection (forwards)
+  3. Scroll to first selection
+  4. Scroll to last selection
+- Clear to selection commands - clear all selections leaving a single cursor at:
+  1. Clear to first selection
+  2. Clear to last selection
+  3. Clear to selection on, or nearest to, the middle line
+- Automatic scroll cycling, from last selection to first and visa-versa.
+- User feedback status messages, e.g. *scroll at selection: 5 of 11* or *cleared at selection: 3 of 5*
+
+### Description
+
 Multiple Selection Scroller is a Sublime Text plugin which provides commands to allow scrolling
 forwards and backwards through the current selections by moving the visible region so that the
 next/previous selection is centered on the middle line. Cycling from the last selection up to the
@@ -10,16 +28,20 @@ selection complete its scrolling functionality.
 
 Multiple Selection Scroller also provides commands to clear the selections whilst leaving a single
 cursor at the first selection, at the last selection, or at the selection on, or nearest to, the
-middle line (conceptually the 'current' selection or the one most recently scrolled to).
+middle line (conceptually the *current* selection or the one most recently scrolled to).
 
 By default user feedback is given in the form of status messages. This tells the user which
-selection has just been placed on the middle line if scrolling (e.g. "scroll at selection: 5 of
-11"), or at which selection the cursor has been left if clearing the selections (e.g. "cleared at
-selection: 3 of 5"). User feedback can be disabled.
+selection has just been placed on the middle line if scrolling (e.g. *scroll at selection: 5 of
+11*), or at which selection the cursor has been left if clearing the selections (e.g. *cleared at
+selection: 3 of 5*).
+
+The plugin has settings to disable user feedback status messages and to prevent scroll cycling.
+
+### Known Design Limitation (not a bug)
 
 Please be aware that there is a known design limitation of the plugin. Selections above the middle
 line on the first page of the buffer can not be moved to the middle line, Sublime Text has no
-'scroll_above_beginning' setting. If the 'scroll_past_end' setting is set to true, which it is by
+`scroll_above_beginning` setting. If the `scroll_past_end` setting is set to true, which it is by
 default, then the first selection below the middle line on the last page of the buffer can be moved
 to the middle line, but any subsequent selections can not be. In both cases any remaining selections
 either above or below the middle line will be in the visible region on the screen and highlighted so
@@ -38,7 +60,7 @@ which is rarely.]
 ### Installation
 
 Using [PackageControl](https://sublime.wbond.net) the Sublime Text Package Manager. Open the
-`Command Palette` in Sublime Text and select `Package Control: Install Package` when the package
+`Command Palette` in Sublime Text and select `Package Control: Install Package`. When the package
 list has loaded just select `Multiple Selection Scroller`. [Note: This plugin has been submitted to
 PackageControl but it may take a few days before it is available.]
 
@@ -46,9 +68,10 @@ Or install manually:
 
 - Create a directory called `MultipleSelectionScroller` (or whatever you prefer) in your Sublime
   Text `Packages` directory.
-- Put the files from this repository into that directory either by using `git` or by downloading and
-  extracting the zip file on the [GitHub](https://github.com/mattst/sublime-multiple-selection-
-  scroller) page.
+- Put the files from this repository into that directory either by using `git` or by downloading
+  the zip file on the [GitHub](https://github.com/mattst/sublime-multiple-selection-
+  scroller) page, [direct link](https://github.com/mattst/sublime-multiple-selection-
+  scroller). Sublime Text v.2 users will need to extract the files from the zip file.
 - Clearly if you install manually then you will not receive automatic package updates.
 
 
@@ -58,10 +81,10 @@ The Multiple Selection Scroller plugin has two optional settings with which the 
 behaviour can be changed.
 
 - By default, when scrolling, the plugin will cycle from the last selection up to the first, and
-from the first down to the last. This can be disabled by setting `MultipleSelectionScroller.scroll_cycling`
-to `false`.
+from the first down to the last. This can be disabled by setting the
+`MultipleSelectionScroller.scroll_cycling` setting to `false`.
 - By default user feedback is given in the form of status messages. This can be disabled by
-setting `MultipleSelectionScroller.quiet` to `true`.
+setting the `MultipleSelectionScroller.quiet` setting to `true`.
 
 Add these settings to the `Preferences.sublime-settings` file to disable scroll cycling or status
 messages.
