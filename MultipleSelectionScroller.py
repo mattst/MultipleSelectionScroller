@@ -83,8 +83,7 @@
 
 import sublime
 import sublime_plugin
-# (e.g. "scroll at selection: 5 of 11")
-# (e.g. "cleared at selection: 3 of 5")
+
 
 class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
     """
@@ -739,10 +738,11 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # the Sublime View Class show_at_center() method when centering lines - if it does not then
         # scrolling can get 'stuck' on a selection.
         #
-        # It has been established that subtracting 1 from odd numbers, before the division by 2,
-        # works perfectly. When the number of visible lines is odd, there will be an equal number of
-        # lines above and below the middle line, when the number of visible lines is even there will
-        # be an extra line above. Consider the following (noting that visible_lines is 0 indexed):
+        # It has been established that subtracting 1 from an odd number of visible lines, before the
+        # division by 2 to get the middle line number, works perfectly. When the number of visible
+        # lines is odd, there will be an equal number of lines above and below the middle line, when
+        # the number of visible lines is even there will be an extra line above. Consider the
+        # following (noting that visible_lines is 0 indexed):
         #
         # visible_lines_len = 10    ...    middle_line_num = 10 / 2 = 5
         # Indexes 0 to 4 == 5 (lines above middle_line)

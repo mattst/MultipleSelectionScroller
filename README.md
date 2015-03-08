@@ -28,14 +28,14 @@ continues to work correctly. [In real-world usage I have not found this inconven
 which is rarely.]
 
 
-#### Requirements / Tested
+### Requirements / Tested
 
 - Sublime Text v.2 or v.3
 - ST v.2 (Build 2221) - tested and fully working.
 - ST v.3 (Build 3065) - tested and fully working.
 
 
-#### Installation
+### Installation
 
 Using [PackageControl](https://sublime.wbond.net) the Sublime Text Package Manager. Open the
 `Command Palette` in Sublime Text and select `Package Control: Install Package` when the package
@@ -52,24 +52,50 @@ Or install manually:
 - Clearly if you install manually then you will not receive automatic package updates.
 
 
-#### Setup
+### Setup — Settings
+
+The Multiple Selection Scroller plugin has two optional settings with which the plugin's default
+behaviour can be changed.
+
+- By default, when scrolling, the plugin will cycle from the last selection up to the first, and
+from the first down to the last. This can be disabled by setting `MultipleSelectionScroller.scroll_cycling`
+to `false`.
+- By default user feedback is given in the form of status messages. This can be disabled by
+setting `MultipleSelectionScroller.quiet` to `true`.
+
+Add these settings to the `Preferences.sublime-settings` file to disable scroll cycling or status
+messages.
+
+    // Disable scroll cycling:
+    "MultipleSelectionScroller.scroll_cycling": false,
+
+    // Disable user feedback status messages:
+    "MultipleSelectionScroller.quiet": true,
+
+
+### Setup — Keys
 
 The Multiple Selection Scroller plugin does not provide a keymap file to set its keys. Choosing keys
 that will suit all users is not possible - the chosen keys will always interfere with the existing
 keys of some users. Various suggested key mappings are shown below - these can be copied and pasted
-into your `Default (OS).sublime-keymap` file and altered if desired.
+into your `Default (OS).sublime-keymap` file and altered to suit your configuation.
 
-The '[' and ']' keys are already used for line indenting and code folding, using them for multi-
-selection scrolling and clearing in various key combinations seems both convenient and appropriate.
+The `[` and `]` square bracket keys are already used for line indenting and code folding, using them
+for multi-selection scrolling and clearing in various key combinations seems both convenient and
+appropriate.
 
 
-##### Suggested Keys Linux/Windows - Minimal Setup:
+#### Suggested Keys Linux/Windows - Minimal Setup:
 
 Notes:
 
 - The commands most often used are: scroll to next selection, scroll to previous selection, clear
-to last selection, and clear to selection on (or nearest to) the middle line. Here is an example
+to last selection, and clear to selection on (or nearest to) the middle line. Below is an example
 of what you could use for just those commands.
+- The clearing commands below use `alt+k` as a key chord, e.g. `"alt+k", "alt+["`. This is so that
+the common process of scrolling to the desired selection and then clearing at that selection can
+be achieved without taking your finger off the `alt` key. Clearly these can easily be changed to
+use `ctrl+k`, e.g. `"ctrl+k", "ctrl+["`.
 
 e.g.
 
@@ -78,21 +104,72 @@ e.g.
     { "keys": ["alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next"} },
 
     // Multiple Selection Scroller - Clearing:
-    { "keys": ["alt+k", "]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last"} },
-    { "keys": ["alt+k", "["], "command": "multiple_selection_scroller", "args": {"clear_to": "middle"} },
+    { "keys": ["alt+k", "alt+["], "command": "multiple_selection_scroller", "args": {"clear_to": "middle"} },
+    { "keys": ["alt+k", "alt+]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last"} },
 
 
-##### Suggested Keys Linux/Windows - Full Setup #1:
+#### Suggested Keys OS X - Minimal Setup:
 
 Notes:
 
-- The clearing commands below do not use a modifier key for the 2nd keypress. This is done so that
-all the command's keys can use a single modifier key (Alt). If you don't like that there are
-alternative suggestions below.
-- The final key binding below, `"clear_to": "middle"`, uses `\`. This is because on most keyboards
-the `\` key is to the right of the `]` key. On my UK keyboard the `#` key is to the right of the
-`]` key, so that is what I use, other locales vary more widely.
-- To set the backslash key in Sublime Text the `\` key must be escaped like this `\\`.
+- The commands most often used are: scroll to next selection, scroll to previous selection, clear
+to last selection, and clear to selection on (or nearest to) the middle line. Below is an example
+of what you could use for just those commands.
+- Choosing commands for OS X having never used Sublime Text on OS X is difficult. I've examined
+the `Default (OSX).sublime-keymap` file and chosen appropriate key combinations that are not used
+in that file.
+
+e.g.
+
+    // Multiple Selection Scroller - Scrolling:
+    { "keys": ["ctrl+shift+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous"} },
+    { "keys": ["ctrl+shift+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next"} },
+
+    // Multiple Selection Scroller - Clearing:
+    { "keys": ["super+k", "super+["], "command": "multiple_selection_scroller", "args": {"clear_to": "middle"} },
+    { "keys": ["super+k", "super+]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last"} },
+
+Mac Key Notes:
+
+Option+<alphanum> should not be used on any OS X key bindings (inserts non-ascii characters)
+
+Note: Option == Alt
+
+Indent line(s) (custom code see below)      Command + ]
+Unindent line(s) (custom code see below)    Command + [
+Fold                                        Command + Option + [
+UnFold                                      Command + Option + ]
+Comment line (custom code see below)        Command + \
+Block Comment line (custom code see below)  Command + Shift + \
+
+sublime text "Default (OSX).sublime-keymap"
+https://github.com/d2s/Sublime-Text-2-User-Settings/blob/master/Default%20%28OSX%29.sublime-keymap
+
+    { "keys": ["super+shift+["], "command": "prev_view" },
+    { "keys": ["super+shift+]"], "command": "next_view" },
+
+    { "keys": ["super+]"], "command": "indent" },
+    { "keys": ["super+["], "command": "unindent" },
+
+    { "keys": ["super+alt+["], "command": "fold" },
+    { "keys": ["super+alt+]"], "command": "unfold" },
+
+
+
+#### Suggested Keys Linux/Windows - Full Setup #1:
+
+Notes:
+
+- The clearing commands below do not use a modifier key for the 2nd keypress, e.g. `"alt+k", "["`.
+This is done so that all the command's keys can use a single modifier key `alt`. If you don't like
+that there are alternative suggestions below.
+- In fact it is not quite a "Full Setup", clearing to the first selection is not set. As you know
+pressing `escape` will do this. Using `"clear_to": "first"` differs only in that when clearing to
+the first selection only the cursor remains at the first selection, rather than the first selection
+remaining fully selected which is what pressing `escape` will do. If you want that functionality
+add a key. [For clearing, I use `[` to first, `]` to last, `#` to middle - note `#` is to the right
+of `]` on my keyboard layout although on most keyboards `\` is in that position. Hint: If using `\`
+then that key needs to be escaped in the binding, e.g. `"alt+k", "\\"`.
 
 e.g.
 
@@ -103,12 +180,11 @@ e.g.
     { "keys": ["alt+k", "alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "last"} },
 
     // Multiple Selection Scroller - Clearing:
-    { "keys": ["alt+k", "["], "command": "multiple_selection_scroller", "args": {"clear_to": "first"} },
+    { "keys": ["alt+k", "["], "command": "multiple_selection_scroller", "args": {"clear_to": "middle"} },
     { "keys": ["alt+k", "]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last"} },
-    { "keys": ["alt+k", "\\"], "command": "multiple_selection_scroller", "args": {"clear_to": "middle"} },
 
 
-##### Suggested Keys Linux/Windows - Full Setup #2:
+#### Suggested Keys Linux/Windows - Full Setup #2:
 
 Notes:
 
@@ -161,9 +237,9 @@ e.g.
 
 
 
-#### Reference
+### Reference
 
-###### Command and Agruments:
+#### Command and Agruments:
 
     Command name: multiple_selection_scroller
 
@@ -187,7 +263,7 @@ e.g.
     clear_to         middle        Clear to selection on/nearest the middle line
     -------------------------------------------------------------------------------
 
-###### Settings File:
+#### Settings File:
 
     Two settings may optionally be used in the Preferences.sublime-settings file.
 
@@ -203,62 +279,12 @@ e.g.
     -------------------------------------------------------------------------------------
     Setting                                    Value         Description
     -------------------------------------------------------------------------------------
-    MultipleSelectionScroller.scroll_cycling   true     Scroll cycling (default)
+    MultipleSelectionScroller.scroll_cycling   true     Enable scroll cycling (default)
     MultipleSelectionScroller.scroll_cycling   false    Disable scroll cycling
-    -------------------------------------------------------------------------------------
 
 
 
 
-#----
-
-# Optional Arg:   quiet      : Controls whether to display status messages:
-# -------------------------------------------------------------------------------------
-# Value:          true       : Do not display status messages
-# Value:          false      : Display status messages (default)
-#
-# Settings File:  Optionally, whether to display status messages can be set in the
-#                 Preferences.sublime-settings settings file.
-# -------------------------------------------------------------------------------------
-# Setting:        MultipleSelectionScroller.quiet
-# Value:          true       : Do not display status messages
-# Value:          false      : Display status messages (default)
-#
-
-
-#### Reference Table
-
-    --------------------------------------------------------------------------------------
-    scroll_to commands move the visible region centering the selection on the middle line.
-    --------------------------------------------------------------------------------------
-    Description                                      Command Arg      Value
-    --------------------------------------------------------------------------------------
-    Scroll to previous selection (backwards)         scroll_to        previous
-    Scroll to next selection (forwards)              scroll_to        next
-    Scroll to first selection                        scroll_to        first
-    Scroll to last selection                         scroll_to        last
-
-    --------------------------------------------------------------------------------------
-    clear_to commands clear the selections leaving a single cursor at the chosen location.
-    --------------------------------------------------------------------------------------
-    Description                                      Command Arg      Value
-    --------------------------------------------------------------------------------------
-    Clear to first selection                         clear_to         first
-    Clear to last selection                          clear_to         last
-    Clear to selection (on/nearest) middle line      clear_to         middle
-    --------------------------------------------------------------------------------------
-
-
-
-    --------------------------------------------------------------------------------------
-    clear_to commands clear the selections leaving a single cursor at the chosen location.
-    --------------------------------------------------------------------------------------
-    Description                                      Command Arg      Value
-    --------------------------------------------------------------------------------------
-    Clear to first selection                         clear_to         first
-    Clear to last selection                          clear_to         last
-    Clear to selection (on/nearest) middle line      clear_to         middle
-    --------------------------------------------------------------------------------------
 
 
 
@@ -312,7 +338,7 @@ changed to keys that suit me better.
 I hope you find Multiple Selection Scroller useful.
 
 
-#### License
+### License
 
 The MIT License (MIT)
 
