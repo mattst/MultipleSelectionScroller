@@ -9,15 +9,16 @@
 #                 ST v.2 build 2221 - tested and working
 #                 Tests done on Linux 64 bit OS
 #
-# Written by:     Matthew Stanfield
+# Written by:     mattst@i-dig.info
 #
-# Last Edited:    2015-03-07
+# Last Edited:    2015-03-08
 #
 # Version:        n/a
 #
+#
 # ST Command:     multiple_selection_scroller
 #
-# Arg Required:   Either scroll_to OR clear_to must be used but not both.
+# Arg Required:   Either scroll_to OR clear_to MUST be used but not both.
 #
 # Arg:            scroll_to  : Scroll to where (placing on middle line):
 # -------------------------------------------------------------------------------------
@@ -32,9 +33,14 @@
 # Value:          last       : The last (bottom) selection
 # Value:          middle     : The selection on, or nearest to, the visible middle line
 #
-# Settings File:  Optionally, whether to display status messages can be set in the
+#
+# Settings File:  There are two settings which can optionally be set in the
 #                 Preferences.sublime-settings settings file.
 # -------------------------------------------------------------------------------------
+# Setting:        MultipleSelectionScroller.scroll_cycling
+# Value:          true       : Enable scroll cycling (default)
+# Value:          false      : Disable scroll cycling
+#
 # Setting:        MultipleSelectionScroller.quiet
 # Value:          true       : Do not display status messages
 # Value:          false      : Display status messages (default)

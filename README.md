@@ -62,15 +62,78 @@ into your `Default (OS).sublime-keymap` file and altered if desired.
 The '[' and ']' keys are already used for line indenting and code folding, using them for multi-
 selection scrolling and clearing in various key combinations seems both convenient and appropriate.
 
-The final command in the table below is to clear the selections leaving a cursor at the selection
-on, or nearest to, the middle line. The 'recommended' keys are: `ctrl+k, ctrl+#` The '#' key was
-chosen bacause on my UK keyboard it is to the right of the ']' key - it was chosen for the
-convenience of its location. On a USA keyboard and some other locales the '/' key occupies the
-position to the right of the ']' key. For that layout clearly the '/' key makes more sense to use
-than '#'. Some users may prefer to keep the keys limited to just the '[' and ']' keys in which
-case they could use, say, `ctrl+k, ctrl+shift+]`, it is a personal preference.
 
-Recommended keys:
+##### Suggested Keys Linux/Windows - Minimal Setup:
+
+Notes:
+
+- The commands most often used are: scroll to next selection, scroll to previous selection, clear
+to last selection, and clear to selection on (or nearest to) the middle line. Here is an example
+of what you could use for just those commands.
+
+e.g.
+
+    // Multiple Selection Scroller - Scrolling:
+    { "keys": ["alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous"} },
+    { "keys": ["alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next"} },
+
+    // Multiple Selection Scroller - Clearing:
+    { "keys": ["alt+k", "]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last"} },
+    { "keys": ["alt+k", "["], "command": "multiple_selection_scroller", "args": {"clear_to": "middle"} },
+
+
+##### Suggested Keys Linux/Windows - Full Setup #1:
+
+Notes:
+
+- The clearing commands below do not use a modifier key for the 2nd keypress. This is done so that
+all the command's keys can use a single modifier key (Alt). If you don't like that there are
+alternative suggestions below.
+- The final key binding below, `"clear_to": "middle"`, uses `\`. This is because on most keyboards
+the `\` key is to the right of the `]` key. On my UK keyboard the `#` key is to the right of the
+`]` key, so that is what I use, other locales vary more widely.
+- To set the backslash key in Sublime Text the `\` key must be escaped like this `\\`.
+
+e.g.
+
+    // Multiple Selection Scroller - Scrolling:
+    { "keys": ["alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous"} },
+    { "keys": ["alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next"} },
+    { "keys": ["alt+k", "alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "first"} },
+    { "keys": ["alt+k", "alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "last"} },
+
+    // Multiple Selection Scroller - Clearing:
+    { "keys": ["alt+k", "["], "command": "multiple_selection_scroller", "args": {"clear_to": "first"} },
+    { "keys": ["alt+k", "]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last"} },
+    { "keys": ["alt+k", "\\"], "command": "multiple_selection_scroller", "args": {"clear_to": "middle"} },
+
+
+##### Suggested Keys Linux/Windows - Full Setup #2:
+
+Notes:
+
+- If you do not like the way Setup #1 does not use a modifier key for the 2nd keypress, here is an
+alternative.
+
+e.g.
+
+    // Multiple Selection Scroller - Scrolling:
+    { "keys": ["alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous"} },
+    { "keys": ["alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next"} },
+    { "keys": ["alt+k", "alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "first"} },
+    { "keys": ["alt+k", "alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "last"} },
+
+    // Multiple Selection Scroller - Clearing:
+    { "keys": ["ctrl+k", "ctrl+["], "command": "multiple_selection_scroller", "args": {"clear_to": "first"} },
+    { "keys": ["ctrl+k", "ctrl+]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last"} },
+    { "keys": ["ctrl+k", "ctrl+\\"], "command": "multiple_selection_scroller", "args": {"clear_to": "middle"} },
+
+
+
+
+
+
+
 
     --------------------------------------------------------------------------------------
     scroll_to commands move the visible region centering the selection on the middle line.
@@ -97,7 +160,10 @@ Recommended keys:
     --------------------------------------------------------------------------------------
 
 
+
 #### Reference
+
+###### Command and Agruments:
 
     Command name: multiple_selection_scroller
 
@@ -105,7 +171,7 @@ Recommended keys:
 
     scroll_to - move the visible region centering the selection on the middle line.
     -------------------------------------------------------------------------------
-    Command Arg      Value                  Description
+    Command Arg      Value                 Description
     -------------------------------------------------------------------------------
     scroll_to        previous      Scroll to previous selection (backwards)
     scroll_to        next          Scroll to next selection (forwards)
@@ -114,40 +180,37 @@ Recommended keys:
 
     clear_to - clear the selections leaving a single cursor at the chosen location.
     -------------------------------------------------------------------------------
-    Command Arg      Value                  Description
+    Command Arg      Value                 Description
     -------------------------------------------------------------------------------
     clear_to         first         Clear to first selection
     clear_to         last          Clear to last selection
     clear_to         middle        Clear to selection on/nearest the middle line
     -------------------------------------------------------------------------------
 
-    quiet - control display of user feedback status messages (this is optional)
-    -------------------------------------------------------------------------------
-    Command Arg      Value                  Description
-    -------------------------------------------------------------------------------
-    quiet            true          Do not display status messages
-    quiet            false         Display status messages (default)
-    -------------------------------------------------------------------------------
+###### Settings File:
 
     Two settings may optionally be used in the Preferences.sublime-settings file.
 
-    MultipleSelectionScroller.quiet - control user feedback status messages
-    -------------------------------------------------------------------------------
-    Setting                            Value             Description
-    -------------------------------------------------------------------------------
-    MultipleSelectionScroller.quiet    true     Do not display status messages
-    MultipleSelectionScroller.quiet    false    Display status messages (default)
-    -------------------------------------------------------------------------------
+    MultipleSelectionScroller.quiet - control user feedback status messages.
+    -------------------------------------------------------------------------------------
+    Setting                                    Value         Description
+    -------------------------------------------------------------------------------------
+    MultipleSelectionScroller.quiet            true     Do not display status messages
+    MultipleSelectionScroller.quiet            false    Display status messages (default)
+    -------------------------------------------------------------------------------------
 
-    MultipleSelectionScroller.cycle - control scroll cycling
-    -------------------------------------------------------------------------------
-    Setting                            Value             Description
-    -------------------------------------------------------------------------------
-    MultipleSelectionScroller.cycle    true     Scroll cycling enabled (default)
-    MultipleSelectionScroller.cycle    false    Scroll cycling disabled
-    -------------------------------------------------------------------------------
+    MultipleSelectionScroller.scroll_cycling - control scroll cycling.
+    -------------------------------------------------------------------------------------
+    Setting                                    Value         Description
+    -------------------------------------------------------------------------------------
+    MultipleSelectionScroller.scroll_cycling   true     Scroll cycling (default)
+    MultipleSelectionScroller.scroll_cycling   false    Disable scroll cycling
+    -------------------------------------------------------------------------------------
 
-"MultipleSelectionScroller.scroll_cycling"
+
+
+
+#----
 
 # Optional Arg:   quiet      : Controls whether to display status messages:
 # -------------------------------------------------------------------------------------
