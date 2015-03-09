@@ -2,9 +2,15 @@
 ## Multiple Selection Scroller - Plugin for Sublime Text v.2 and v.3
 
 
+### Overview
+
+Scroll forwards and backwards through your multiple selections and clear your selections leaving a
+single cursor at any selection you want.
+
+
 ### Features
 
-A quick overview of what this plugin can do.
+A summary of what this plugin can do.
 
 - Scroll to selection commands - center chosen selection on the middle line:
   1. Scroll to previous selection (backwards)
@@ -16,7 +22,7 @@ A quick overview of what this plugin can do.
   2. Clear to last selection
   3. Clear to selection on, or nearest to, the middle line
 - Automatic scroll cycling, from last selection to first and visa-versa
-- User feedback status messages, e.g. *scroll at selection: 5 of 11* or *cleared at selection: 3 of 5*
+- User feedback status messages, e.g. *"scroll at selection: 5 of 11"* or *"cleared at selection: 3 of 5"*
 
 
 ### Description
@@ -32,9 +38,9 @@ cursor at the first selection, at the last selection, or at the selection on, or
 middle line (conceptually the 'current' selection / the one you just scrolled to).
 
 By default user feedback is given in the form of status messages. This tells the user which
-selection has just been placed on the middle line if scrolling (e.g. *scroll at selection: 5 of
-11*), or at which selection the cursor has been left if clearing the selections (e.g. *cleared at
-selection: 3 of 5*).
+selection has just been placed on the middle line if scrolling (e.g. *"scroll at selection: 5 of
+11"*), or at which selection the cursor has been left if clearing the selections (e.g. *"cleared at
+selection: 3 of 5"*).
 
 The plugin has settings to disable user feedback status messages and to prevent scroll cycling.
 
@@ -65,17 +71,17 @@ The demo shows both selection scrolling and selection clearing functionality.
 ### Requirements / Tested
 
 - Sublime Text v.2 or v.3
-- ST v.2 (Build 2221) - tested and working.
-- ST v.3 (Build 3065) - tested and working.
-- The plugin should work with all v.2 and v.3 releases.
+- Tested using: ST v.2 Build 2221 (Linux 64 bit).
+- Tested using: ST v.3 Build 3065 (Linux 64 bit).
 
 
 ### Installation
 
-Using [PackageControl](https://sublime.wbond.net) the Sublime Text Package Manager. Open the
-`Command Palette` in Sublime Text and select `Package Control: Install Package`. When the package
-list has loaded just select `Multiple Selection Scroller`.  *[Note: This plugin has been submitted
-to PackageControl but it may take a few days before it is available.]*
+Using [PackageControl](https://sublime.wbond.net) the *Sublime Text Package Manager*.
+
+- Open the `Command Palette` in Sublime Text and select `Package Control: Install Package`.
+- When the package list has loaded, select `Multiple Selection Scroller`.
+- *Note: This plugin has been submitted to PackageControl but it may take a few days before it is available.*
 
 Or install manually:
 
@@ -84,12 +90,14 @@ Or install manually:
 - Put the files from this repository into that directory either by using `git` or by downloading
   the zip file on the [GitHub](https://github.com/mattst/sublime-multiple-selection-
   scroller) page, [direct link to zip](https://github.com/mattst/sublime-multiple-selection-
-  scroller). Sublime Text v.2 users must extract the files from the zip file, those using v.3
-  can simply rename the file replacing `.zip` with `.sublime-package` or extract the files if
-  preferred.
-- Clearly if you install manually then you will not receive automatic package updates.
+  scroller).
+- Sublime Text v.2 users must extract the files from the zip file.
+- Sublime Text v.3 users can simply rename the file replacing `.zip` with `.sublime-package` or
+extract the files if preferred.
+- Clearly if you install manually then you will not receive automatic package updates, inconvenient
+if a bug is found.
 - If you are concerned that a keys file will be added that will interfere with your config, be
-assured that no `Default (OS).sublime-keymap` will ever be added to the package.
+assured that no `Default (OS).sublime-keymap` will ever be added to this package.
 
 
 ### Setup — Settings
@@ -103,7 +111,7 @@ from the first down to the last. This can be disabled by setting the
 - By default user feedback is given in the form of status messages. This can be disabled by
 setting the `MultipleSelectionScroller.quiet` setting to `true`.
 
-Add these settings to your `Preferences.sublime-settings` file:
+Add either of these settings to your `Preferences.sublime-settings` file:
 
     // Disable scroll cycling:
     "MultipleSelectionScroller.scroll_cycling": false,
@@ -131,7 +139,7 @@ Notes:
 - The commands most often used are: *scroll to next selection*, *scroll to previous selection*, *clear
 to last selection*, and *clear to selection on (or nearest to) the middle line*. Below is an example
 of what you could use for just those commands.
-- The clearing commands below use `alt+k` as a key chord, e.g. `"alt+k", "alt+["`. This is so that
+- The clearing keys below use `alt+k` as a key chord, e.g. `"alt+k", "alt+["`. This is so that
 the common process of scrolling to the desired selection and then clearing at that selection can
 be achieved without taking your finger off the `alt` key. Clearly these can easily be changed to
 use `ctrl+k`, e.g. `"ctrl+k", "ctrl+["`.
@@ -173,11 +181,11 @@ e.g.
 
 Notes:
 
-- The clearing commands below do not use a modifier key for the 2nd keypress, e.g. `"alt+k", "["`.
+- The clearing keys below do not use a modifier key for the 2nd keypress, e.g. `"alt+k", "["`.
 This is done so that all the command's keys can use a single modifier key `alt`. If you don't like
 that there are alternative suggestions below.
 - In fact it is not quite a "Full Setup", clearing to the first selection is not set. As you know
-pressing `escape` will do this. Using `"clear_to": "first"` differs only in that when clearing to
+pressing `escape` will do that. Using `"clear_to": "first"` differs only in that when clearing to
 the first selection only the cursor remains at the first selection, rather than the first selection
 remaining fully selected which is what pressing `escape` will do. If you want that functionality
 add a key. [For clearing, I use `[` to first, `]` to last, `#` to middle - note `#` is to the right
@@ -220,7 +228,7 @@ e.g.
 
 **Suggested Keys OS X - Full Setup:**
 
-- The clearing commands below do not use a modifier key for the 2nd keypress, e.g. `"super+k", "["`.
+- The clearing keys below do not use a modifier key for the 2nd keypress, e.g. `"super+k", "["`.
 This is done so that the number of different keys in use can be kept to a minimum.
 - Please read the notes in **Linux/Windows - Full Setup #1** about it being **not quite a "Full
 Setup"**.
