@@ -11,7 +11,7 @@
 #
 # Written by:     mattst@i-dig.info
 #
-# Last Edited:    2015-03-08
+# Last Edited:    2015-03-11
 #
 # Version:        n/a
 #
@@ -20,64 +20,31 @@
 #
 # Arg Required:   Either scroll_to OR clear_to MUST be used but not both.
 #
-# Arg:            scroll_to  : Scroll to where (placing on middle line):
-# -------------------------------------------------------------------------------------
-# Value:          previous   : Backwards to the previous selection
-# Value:          next       : Forwards to the next selection
-# Value:          first      : To the first (top) selection
-# Value:          last       : To the last (bottom) selection
+# Arg:            scroll_to     : Scroll to where (placing on middle line):
+# ------------------------------------------------------------------------------------------
+# Value:          previous_sel  : Backwards to the previous selection
+# Value:          next_sel      : Forwards to the next selection
+# Value:          first_sel     : To the first (top) selection
+# Value:          last_sel      : To the last (bottom) selection
 #
-# Arg:            clear_to   : Clear all selections, leaving a single cursor at:
-# -------------------------------------------------------------------------------------
-# Value:          first      : The first (top) selection
-# Value:          last       : The last (bottom) selection
-# Value:          middle     : The selection on, or nearest to, the visible middle line
+# Arg:            clear_to      : Clear all selections, leaving a single cursor at:
+# ------------------------------------------------------------------------------------------
+# Value:          first_sel     : The first (top) selection
+# Value:          last_sel      : The last (bottom) selection
+# Value:          middle_sel    : The selection on, or nearest to, the visible middle line
+# Value:          visible_area  : The middle line of the visible region (ignores selections)
 #
 #
 # Settings File:  There are two settings which can optionally be set in the
 #                 Preferences.sublime-settings settings file.
-# -------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------
 # Setting:        MultipleSelectionScroller.scroll_cycling
-# Value:          true       : Enable scroll cycling (default)
-# Value:          false      : Disable scroll cycling
+# Value:          true          : Enable scroll cycling (default)
+# Value:          false         : Disable scroll cycling
 #
 # Setting:        MultipleSelectionScroller.quiet
-# Value:          true       : Do not display status messages
-# Value:          false      : Display status messages (default)
-#
-#
-# Suggested keys for Default (OS).sublime-keymap file (the ones I use):
-#
-# Scroll to previous/next using "alt+[" and "alt+]":
-#
-# [The '[' and ']' keys are already used for line indenting and code folding, using them for
-# multi-selection scrolling in conjunction with alt seems both convenient and appropriate.]
-#
-# { "keys": ["alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous"} },
-# { "keys": ["alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next"} },
-#
-# Scroll to first/last using "alt+k", "alt+[" and "alt+k", "alt+]":
-#
-# { "keys": ["alt+k", "alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "first"} },
-# { "keys": ["alt+k", "alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "last"} },
-#
-# Clear to first/last/middle using ctrl+k", "ctrl+[", "ctrl+k", "ctrl+]", and "ctrl+k", "ctrl+#":
-#
-# { "keys": ["ctrl+k", "ctrl+["], "command": "multiple_selection_scroller", "args": {"clear_to": "first"} },
-# { "keys": ["ctrl+k", "ctrl+]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last"} },
-# { "keys": ["ctrl+k", "ctrl+#"], "command": "multiple_selection_scroller", "args": {"clear_to": "middle"} },
-#
-# Clear to middle (duplication) using "alt+k", "alt+#":
-#
-# [Clearing to middle is often used during scrolling, so using "alt+k" rather than moving the key
-# being held down to "ctrl" is both convenient and quicker.]
-#
-# { "keys": ["alt+k", "alt+#"], "command": "multiple_selection_scroller", "args": {"clear_to": "middle"} },
-#
-# The use of '#' in the two 'clear to middle' examples above is because the '#' key is to the right
-# of the ']' key on my (British) keyboard. On a USA keyboard the '\' key occupies that position, so
-# that should be substituted for '#'. On some Mac keyboards there is no key at all on the right of
-# the ']' key. Of course, these are just suggestions, use whatever you want. :)
+# Value:          true          : Do not display status messages
+# Value:          false         : Display status messages (default)
 #
 
 
@@ -94,7 +61,10 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
     and to the last selection complete its scrolling functionality.
 
     The class also provides commands to clear the selections whilst leaving a single cursor at the
-    first selection, the last selection, or at the selection on, or nearest to, the middle line.
+    first selection, at the last selection, or at the selection on, or nearest to, the middle line,
+    and moving the visible region so that the single cursor is centered on the middle line. It also
+    has a command to clear the selections whilst leaving a single cursor at the end of the middle
+    line of the visible region (this ignores selections and does not move the visible region).
 
     User feedback is given in the form of status messages, telling the user which selection has just
     been placed on the middle line if scrolling (e.g. "scroll at selection: 5 of 11"), or at which
@@ -118,36 +88,37 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
     # For: control mode - assigned to the control_mode instance variable.
 
-    SCROLL_TO              = 100
-    CLEAR_TO               = 110
+    SCROLL_TO                  = 100
+    CLEAR_TO                   = 110
 
     # For: scrolling to selections - assigned to the scroll_to instance variable.
 
-    SCROLL_TO_PREVIOUS     = 120
-    SCROLL_TO_NEXT         = 130
-    SCROLL_TO_FIRST        = 140
-    SCROLL_TO_LAST         = 150
+    SCROLL_TO_PREVIOUS_SEL     = 120
+    SCROLL_TO_NEXT_SEL         = 130
+    SCROLL_TO_FIRST_SEL        = 140
+    SCROLL_TO_LAST_SEL         = 150
 
     # For: cursor position after clearing selections - assigned to the clear_to instance variable.
 
-    CLEAR_TO_FIRST         = 160
-    CLEAR_TO_LAST          = 170
-    CLEAR_TO_MIDDLE        = 180
+    CLEAR_TO_FIRST_SEL         = 160
+    CLEAR_TO_LAST_SEL          = 170
+    CLEAR_TO_MIDDLE_SEL        = 180
+    CLEAR_TO_VISIBLE_AREA      = 190
 
     # For: scroll cycling - assigned to the scroll_cycling instance variable.
 
-    SCROLL_CYCLING_ON      = 190
-    SCROLL_CYCLING_OFF     = 200
+    SCROLL_CYCLING_ON          = 200
+    SCROLL_CYCLING_OFF         = 210
 
     # For: user feedback status messages - assigned to the user_feedback instance variable.
 
-    FEEDBACK_VERBOSE       = 210
-    FEEDBACK_QUIET         = 220
+    FEEDBACK_VERBOSE           = 220
+    FEEDBACK_QUIET             = 230
 
     # For: Operational status - values are checked for in operational_status().
 
-    MIN_NUM_SELECTIONS     = 1
-    MIN_NUM_VISIBLE_LINES  = 3
+    MIN_NUM_SELECTIONS         = 1
+    MIN_NUM_VISIBLE_LINES      = 3
 
 
     def run(self, edit, **kwargs):
@@ -279,23 +250,23 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
         # Set the scroll_to instance variable.
 
-        if scroll_to_arg_val == "next":
-            self.scroll_to = MultipleSelectionScrollerCommand.SCROLL_TO_NEXT
+        if scroll_to_arg_val == "next_sel":
+            self.scroll_to = MultipleSelectionScrollerCommand.SCROLL_TO_NEXT_SEL
 
-        elif scroll_to_arg_val == "previous":
-            self.scroll_to = MultipleSelectionScrollerCommand.SCROLL_TO_PREVIOUS
+        elif scroll_to_arg_val == "previous_sel":
+            self.scroll_to = MultipleSelectionScrollerCommand.SCROLL_TO_PREVIOUS_SEL
 
-        elif scroll_to_arg_val == "first":
-            self.scroll_to = MultipleSelectionScrollerCommand.SCROLL_TO_FIRST
+        elif scroll_to_arg_val == "first_sel":
+            self.scroll_to = MultipleSelectionScrollerCommand.SCROLL_TO_FIRST_SEL
 
-        elif scroll_to_arg_val == "last":
-            self.scroll_to = MultipleSelectionScrollerCommand.SCROLL_TO_LAST
+        elif scroll_to_arg_val == "last_sel":
+            self.scroll_to = MultipleSelectionScrollerCommand.SCROLL_TO_LAST_SEL
 
         # "scroll_to" is set to an invalid value.
         else:
             return
 
-        # Set the control_mode instance variable.
+        # All OK - Set the control_mode instance variable.
         self.control_mode = MultipleSelectionScrollerCommand.SCROLL_TO
 
     # End of def set_scroll_to()
@@ -324,20 +295,23 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
         # Set the clear_to instance variable.
 
-        if clear_to_arg_val == "first":
-            self.clear_to = MultipleSelectionScrollerCommand.CLEAR_TO_FIRST
+        if clear_to_arg_val == "first_sel":
+            self.clear_to = MultipleSelectionScrollerCommand.CLEAR_TO_FIRST_SEL
 
-        elif clear_to_arg_val == "last":
-            self.clear_to = MultipleSelectionScrollerCommand.CLEAR_TO_LAST
+        elif clear_to_arg_val == "last_sel":
+            self.clear_to = MultipleSelectionScrollerCommand.CLEAR_TO_LAST_SEL
 
-        elif clear_to_arg_val == "middle":
-            self.clear_to = MultipleSelectionScrollerCommand.CLEAR_TO_MIDDLE
+        elif clear_to_arg_val == "middle_sel":
+            self.clear_to = MultipleSelectionScrollerCommand.CLEAR_TO_MIDDLE_SEL
+
+        elif clear_to_arg_val == "visible_area":
+            self.clear_to = MultipleSelectionScrollerCommand.CLEAR_TO_VISIBLE_AREA
 
         # "clear_to" is set to an invalid value.
         else:
             return
 
-        # Set the control_mode instance variable.
+        # All OK - Set the control_mode instance variable.
         self.control_mode = MultipleSelectionScrollerCommand.CLEAR_TO
 
     # End of def set_clear_to()
@@ -429,10 +403,9 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         # won't scroll the line it is on to the center of the visible region, there is no setting
         # for 'scroll_above_beginning' (I'd like to see that setting added).
         #
-        # 2) If a selection is below the middle line on the last page of the buffer and the setting
-        # 'scroll_past_end' has been set to false (defaults to true) then again Sublime Text won't
-        # move the line it is on to the center of the visible region (however it will if the setting
-        # 'scroll_past_end' is set to true).
+        # 2) If the 'scroll_past_end' setting is set to true, which it is by default, then the first
+        # selection below the middle line on the last page of the buffer can be moved to the middle
+        # line, but any subsequent selections can not be.
         #
         # In both of these cases the next/previous selection will not be moved to the middle line
         # of the visible region, however all remaining selections whether below the middle line (if
@@ -442,16 +415,16 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
         # Perform the appropriate Scrolling.
 
-        if self.scroll_to == MultipleSelectionScrollerCommand.SCROLL_TO_NEXT:
+        if self.scroll_to == MultipleSelectionScrollerCommand.SCROLL_TO_NEXT_SEL:
             self.scroll_to_next_selection()
 
-        elif self.scroll_to == MultipleSelectionScrollerCommand.SCROLL_TO_PREVIOUS:
+        elif self.scroll_to == MultipleSelectionScrollerCommand.SCROLL_TO_PREVIOUS_SEL:
             self.scroll_to_previous_selection()
 
-        elif self.scroll_to == MultipleSelectionScrollerCommand.SCROLL_TO_FIRST:
+        elif self.scroll_to == MultipleSelectionScrollerCommand.SCROLL_TO_FIRST_SEL:
             self.scroll_to_first_selection()
 
-        elif self.scroll_to == MultipleSelectionScrollerCommand.SCROLL_TO_LAST:
+        elif self.scroll_to == MultipleSelectionScrollerCommand.SCROLL_TO_LAST_SEL:
             self.scroll_to_last_selection()
 
     # End of def control_scrolling()
@@ -488,7 +461,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
                 self.view.show_at_center(sel.begin())
 
                 # Give user feedback about the current selection scroll position.
-                self.status_message_scroll_to(sel_index)
+                self.status_message_scroll_to_selection_index(sel_index)
 
                 # Quit loop.
                 found = True
@@ -563,7 +536,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
                 self.view.show_at_center(sel.begin())
 
                 # Give user feedback about the current selection scroll position.
-                self.status_message_scroll_to(sel_index)
+                self.status_message_scroll_to_selection_index(sel_index)
 
                 # Quit loop.
                 found = True
@@ -612,8 +585,8 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         scroll_to_first_selection() moves the visible region to center on the first selection.
         """
 
-        sel_first_index = 0
-        self.scroll_to_selection_index(sel_first_index)
+        sel_index_first = 0
+        self.scroll_to_selection_index(sel_index_first)
 
     # End of def scroll_to_first_selection()
 
@@ -623,8 +596,8 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         scroll_to_last_selection() moves the visible region to center on the last selection.
         """
 
-        sel_last_index = self.sels_len - 1
-        self.scroll_to_selection_index(sel_last_index)
+        sel_index_last = self.sels_len - 1
+        self.scroll_to_selection_index(sel_index_last)
 
     # End of def scroll_to_last_selection()
 
@@ -640,33 +613,48 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         self.view.show_at_center(sel.begin())
 
         # Give user feedback about the current selection scroll position.
-        self.status_message_scroll_to(sel_index)
+        self.status_message_scroll_to_selection_index(sel_index)
 
     # End of def scroll_to_selection_index()
 
 
     def control_clearing(self):
         """
-        control_clearing() controls clearing the selections and leaving a cursor at the selection
-        specified by the value of the clear_to instance variable.
+        control_clearing() controls clearing the selections and leaving a single cursor at the
+        selection specified by the value of the clear_to instance variable.
         """
 
-        # Set the index of the first selection.
-        if self.clear_to == MultipleSelectionScrollerCommand.CLEAR_TO_FIRST:
-            sel_index = 0
+        # Clear selections, leave a cursor at the first selection.
+        if self.clear_to == MultipleSelectionScrollerCommand.CLEAR_TO_FIRST_SEL:
+            sel_index_first = 0
+            self.clear_to_selection_index(sel_index_first)
 
-        # Set the index of the last selection.
-        elif self.clear_to == MultipleSelectionScrollerCommand.CLEAR_TO_LAST:
-            sel_index = self.sels_len - 1
+        # Clear selections, leave a cursor at the last selection.
+        elif self.clear_to == MultipleSelectionScrollerCommand.CLEAR_TO_LAST_SEL:
+            sel_index_last = self.sels_len - 1
+            self.clear_to_selection_index(sel_index_last)
 
-        # Get the index of the selection nearest the middle visible line.
-        elif self.clear_to == MultipleSelectionScrollerCommand.CLEAR_TO_MIDDLE:
-            sel_index = self.get_selection_index_nearest_middle_line()
+        # Clear selections, leave a cursor at the selection on/nearest to the middle visible line.
+        elif self.clear_to == MultipleSelectionScrollerCommand.CLEAR_TO_MIDDLE_SEL:
+            sel_index_nearest_middle_line = self.get_selection_index_nearest_middle_line()
+            self.clear_to_selection_index(sel_index_nearest_middle_line)
 
-        # Get the chosen selection.
-        sel = self.sels[sel_index]
+        # Clear selections, leave a cursor at the end of the middle visible line. This ignores the
+        # position of selections and keeps the current viewport position.
+        elif self.clear_to == MultipleSelectionScrollerCommand.CLEAR_TO_VISIBLE_AREA:
+            self.clear_to_visible_area()
+
+    # End of def control_clearing()
+
+
+    def clear_to_selection_index(self, sel_index):
+        """
+        clear_to_selection_index() clears the selections and places a single cursor at the selection
+        specified by sel_index.
+        """
 
         # Get the cursor position of the chosen selection.
+        sel = self.sels[sel_index]
         cursor_pos = sel.b
 
         # Clear the selections.
@@ -679,9 +667,38 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         self.view.show_at_center(cursor_pos)
 
         # Give user feedback about the selection clearing position.
-        self.status_message_clear_to(sel_index)
+        self.status_message_clear_to_selection_index(sel_index)
 
-    # End of def control_clearing()
+    # End of def clear_to_selection_index()
+
+
+    def clear_to_visible_area(self):
+        """
+        clear_to_visible_area() clears the selections and places a single cursor at the end of the
+        middle line in the visible region. This ignores the position of selections and keeps the
+        current viewport position.
+        """
+
+        # Get the region of the middle line.
+        middle_line = self.get_middle_line()
+
+        # Get the row number of the middle line. Note: view.rowcol() returns a tuple.
+        row_index = 0
+        middle_line_row = self.view.rowcol(middle_line.begin())[row_index]
+
+        # Get the position at the end of the middle line (to use as the cursor position).
+        cursor_pos = middle_line.end()
+
+        # Clear the selections.
+        self.sels.clear()
+
+        # Add a new selection at the end of the middle line.
+        self.sels.add(cursor_pos)
+
+        # Give user feedback about the selection clearing position.
+        self.status_message_clear_to_visible_area(middle_line_row)
+
+    # End of def clear_to_visible_area()
 
 
     def get_selection_index_nearest_middle_line(self):
@@ -709,8 +726,8 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         sel_first_above = self.sels[sel_index_first_above]
         sel_row_first_above = self.view.rowcol(sel_first_above.begin())[row_index]
 
-        # Calculate the distance from the middle row to the row of the first selection below and
-        # the first selection above.
+        # Calculate the distances from the middle row to the row of the first selection below and
+        # to the first selection above.
         distance_to_first_below = sel_row_first_below - middle_line_row
         distance_to_first_above = middle_line_row - sel_row_first_above
 
@@ -782,7 +799,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         """
         get_selection_index_on_or_below_middle_line() returns the index of the selection that is
         either on or the first to occur below the middle line. If there is no selection on/below
-        the middle line then the last selection is returned.
+        the middle line then the index of the last selection is returned.
         """
 
         # Starting at the first selection, loop forwards through all the selections looking for the
@@ -814,7 +831,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
         """
         get_selection_index_on_or_above_middle_line() returns the index of the selection that is
         either on or the first to occur above the middle line. If there is no selection on/above
-        the middle line then the first selection is returned.
+        the middle line then the index of the first selection is returned.
         """
 
         # Starting at the last selection, loop backwards through all the selections looking for the
@@ -842,9 +859,10 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
     # End of def get_selection_index_on_or_above_middle_line()
 
 
-    def status_message_scroll_to(self, sel_index):
+    def status_message_scroll_to_selection_index(self, sel_index):
         """
-        status_message_scroll_to() displays a status message showing the scroll selection position.
+        status_message_scroll_to_selection_index() displays a status message showing the scrolled
+        to selection index number.
         """
 
         # Don't display the status message if the user doesn't want feedback.
@@ -861,12 +879,13 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
         sublime.status_message(msg)
 
-    # End of def status_message_scroll_to()
+    # End of def status_message_scroll_to_selection_index()
 
 
-    def status_message_clear_to(self, sel_index):
+    def status_message_clear_to_selection_index(self, sel_index):
         """
-        status_message_clear_to() displays a status message showing the cleared selection position.
+        status_message_clear_to_selection_index() displays a status message showing the cleared at
+        selection index number.
         """
 
         # Don't display the status message if the user doesn't want feedback.
@@ -883,7 +902,30 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
         sublime.status_message(msg)
 
-    # End of def status_message_clear_to()
+    # End of def status_message_clear_to_selection_index()
+
+
+    def status_message_clear_to_visible_area(self, middle_line_row):
+        """
+        status_message_clear_to_visible_area() displays a status message showing the cleared at
+        line number.
+        """
+
+        # Don't display the status message if the user doesn't want feedback.
+        if self.user_feedback == MultipleSelectionScrollerCommand.FEEDBACK_QUIET:
+            return
+
+        # middle_line_row is indexed from 0, add 1 to correspond to displayed line numbers.
+        middle_line_row += 1
+
+        # Build and display the user feedback status message.
+
+        msg = "multiple_selection_scroller - cleared at line number: {0}"
+        msg = msg.format(str(middle_line_row))
+
+        sublime.status_message(msg)
+
+    # End of def status_message_clear_to_visible_area()
 
 # End of class MultipleSelectionScrollerCommand()
 
