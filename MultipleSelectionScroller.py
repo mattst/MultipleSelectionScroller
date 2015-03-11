@@ -920,7 +920,7 @@ class MultipleSelectionScrollerCommand(sublime_plugin.TextCommand):
 
         # Build and display the user feedback status message.
 
-        msg = "multiple_selection_scroller - cleared at line number: {0}"
+        msg = "multiple_selection_scroller - cleared at visible area, line number: {0}"
         msg = msg.format(str(middle_line_row))
 
         sublime.status_message(msg)
