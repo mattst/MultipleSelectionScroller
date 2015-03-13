@@ -4,8 +4,9 @@
 
 ### Overview
 
-Scroll forwards and backwards through your multiple selections and clear your selections leaving a
-single cursor at any selection you want.
+Scroll forwards and backwards through the multiple selections, scroll directly to the first or last
+selection, and clear your selections leaving a single cursor at the first, last, or '*current*'
+selection (the one just scrolled to), or just clear all selections at the current visible area.
 
 
 ### Features
@@ -18,9 +19,10 @@ A summary of what this plugin can do.
   3. Scroll to first selection
   4. Scroll to last selection
 - Clear to selection commands - clear all selections leaving a single cursor at:
-  1. Clear to first selection
+  1. Clear to first selection (not really needed, see 'Description')
   2. Clear to last selection
-  3. Clear to selection on, or nearest to, the middle line
+  3. Clear to selection on, or nearest to, the middle line (conceptually the '*current*' selection)
+  4. Clear to middle line of visible area (ignore selection positions, just put cursor on middle line)
 - Automatic scroll cycling, from last selection to first and visa-versa
 - User feedback status messages, e.g. *"scroll at selection: 5 of 11"* or *"cleared at selection: 3 of 5"*
 
@@ -35,12 +37,22 @@ selection complete its scrolling functionality.
 
 Multiple Selection Scroller also provides commands to clear the selections whilst leaving a single
 cursor at the first selection, at the last selection, or at the selection on, or nearest to, the
-middle line (conceptually the 'current' selection / the one you just scrolled to).
+middle line (conceptually the '*current*' selection / the one you just scrolled to) and moving the
+visible region so that the single cursor is centered on the middle line. It also has a command to
+clear the selections whilst leaving a single cursor at the end of the middle line of the visible
+region (this ignores selections and does not move the visible region) - in other words clear the
+selections and leave a cursor on the middle line of the current scroll position.
 
-By default user feedback is given in the form of status messages. This tells the user which
-selection has just been placed on the middle line if scrolling (e.g. *"scroll at selection: 5 of
-11"*), or at which selection the cursor has been left if clearing the selections (e.g. *"cleared at
-selection: 3 of 5"*).
+Clearly the selection clearing command which leaves a cursor at the first selection is not really
+needed as the same thing is performed by pressing the `escape` key. It has only been included in the
+plugin's functionality to allow users to assign that task to the same key groupings as the other
+selection scrolling commands and to avoid the complex context based bindings associated with the
+`escape` key which are in the system default `.sublime- keymap` file.
+
+User feedback is given in the form of status messages. This tells the user which selection has just
+been placed on the middle line if scrolling (e.g. *"scroll at selection: 5 of 11"*), or at which
+selection the cursor has been left if clearing the selections (e.g. *"cleared at selection: 3 of
+5"*).
 
 The plugin has settings to disable user feedback status messages and to prevent scroll cycling.
 
@@ -52,16 +64,17 @@ line on the first page of the buffer can not be moved to the middle line, Sublim
 `scroll_above_beginning` setting. If the `scroll_past_end` setting is set to true, which it is by
 default, then the first selection below the middle line on the last page of the buffer can be moved
 to the middle line, but any subsequent selections can not be. In both cases any remaining selections
-either above or below the middle line will be in the visible region on the screen and highlighted so
-easy to spot. It should be noted that this limitation does not interfere with scroll cycling which
-continues to work correctly. [In real-world usage I have not found this inconvenient when it occurs,
-which is rarely.]
+either above or below the middle line will be in the visible region on the screen so easy to spot.
+It should be noted that this limitation does not interfere with scroll cycling which continues to
+work correctly. [In real-world usage I have not found this inconvenient when it occurs, which is
+rarely.]
 
 
 ### Demo
 
 The scrolling in this demo does not appear very smooth, this is because a low frame rate was used
-to keep this file size down.
+to keep the demo's video file size down. The scrolling performed by the plugin is done by Sublime
+Text and it will be just as smooth as your usual scrolling is.
 
 The demo shows both selection scrolling and selection clearing functionality.
 
@@ -111,7 +124,7 @@ from the first down to the last. This can be disabled by setting the
 - By default user feedback is given in the form of status messages. This can be disabled by
 setting the `MultipleSelectionScroller.quiet` setting to `true`.
 
-Add either of these settings to your `Preferences.sublime-settings` file:
+e.g. Add these settings to your `Preferences.sublime-settings` file:
 
     // Disable scroll cycling:
     "MultipleSelectionScroller.scroll_cycling": false,
@@ -147,12 +160,12 @@ use `ctrl+k`, e.g. `"ctrl+k", "ctrl+["`.
 e.g.
 
     // Multiple Selection Scroller - Scrolling:
-    { "keys": ["alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous"} },
-    { "keys": ["alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next"} },
+    { "keys": ["alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous_sel"} },
+    { "keys": ["alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next_sel"} },
 
     // Multiple Selection Scroller - Clearing:
-    { "keys": ["alt+k", "alt+["], "command": "multiple_selection_scroller", "args": {"clear_to": "middle"} },
-    { "keys": ["alt+k", "alt+]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last"} },
+    { "keys": ["alt+k", "alt+["], "command": "multiple_selection_scroller", "args": {"clear_to": "middle_sel"} },
+    { "keys": ["alt+k", "alt+]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last_sel"} },
 
 
 **Suggested Keys OS X - Minimal Setup:**
@@ -169,12 +182,12 @@ in that file.
 e.g.
 
     // Multiple Selection Scroller - Scrolling:
-    { "keys": ["ctrl+shift+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous"} },
-    { "keys": ["ctrl+shift+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next"} },
+    { "keys": ["ctrl+shift+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous_sel"} },
+    { "keys": ["ctrl+shift+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next_sel"} },
 
     // Multiple Selection Scroller - Clearing:
-    { "keys": ["super+k", "super+["], "command": "multiple_selection_scroller", "args": {"clear_to": "middle"} },
-    { "keys": ["super+k", "super+]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last"} },
+    { "keys": ["super+k", "super+["], "command": "multiple_selection_scroller", "args": {"clear_to": "middle_sel"} },
+    { "keys": ["super+k", "super+]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last_sel"} },
 
 
 **Suggested Keys Linux/Windows - Full Setup #1:**
@@ -195,14 +208,14 @@ then that key needs to be escaped in the binding, e.g. `"alt+k", "\\"`.
 e.g.
 
     // Multiple Selection Scroller - Scrolling:
-    { "keys": ["alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous"} },
-    { "keys": ["alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next"} },
-    { "keys": ["alt+k", "alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "first"} },
-    { "keys": ["alt+k", "alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "last"} },
+    { "keys": ["alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous_sel"} },
+    { "keys": ["alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next_sel"} },
+    { "keys": ["alt+k", "alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "first_sel"} },
+    { "keys": ["alt+k", "alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "last_sel"} },
 
     // Multiple Selection Scroller - Clearing:
-    { "keys": ["alt+k", "["], "command": "multiple_selection_scroller", "args": {"clear_to": "middle"} },
-    { "keys": ["alt+k", "]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last"} },
+    { "keys": ["alt+k", "["], "command": "multiple_selection_scroller", "args": {"clear_to": "middle_sel"} },
+    { "keys": ["alt+k", "]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last_sel"} },
 
 
 **Suggested Keys Linux/Windows - Full Setup #2:**
@@ -216,14 +229,14 @@ here is an alternative.
 e.g.
 
     // Multiple Selection Scroller - Scrolling:
-    { "keys": ["alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous"} },
-    { "keys": ["alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next"} },
-    { "keys": ["alt+k", "alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "first"} },
-    { "keys": ["alt+k", "alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "last"} },
+    { "keys": ["alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous_sel"} },
+    { "keys": ["alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next_sel"} },
+    { "keys": ["alt+k", "alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "first_sel"} },
+    { "keys": ["alt+k", "alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "last_sel"} },
 
     // Multiple Selection Scroller - Clearing:
-    { "keys": ["ctrl+k", "ctrl+["], "command": "multiple_selection_scroller", "args": {"clear_to": "middle"} },
-    { "keys": ["ctrl+k", "ctrl+]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last"} },
+    { "keys": ["ctrl+k", "ctrl+["], "command": "multiple_selection_scroller", "args": {"clear_to": "middle_sel"} },
+    { "keys": ["ctrl+k", "ctrl+]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last_sel"} },
 
 
 **Suggested Keys OS X - Full Setup:**
@@ -238,14 +251,14 @@ used Sublime Text on OS X is quite difficult (as already stated).
 e.g.
 
     // Multiple Selection Scroller - Scrolling:
-    { "keys": ["ctrl+shift+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous"} },
-    { "keys": ["ctrl+shift+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next"} },
-    { "keys": ["super+k", "super+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "first"} },
-    { "keys": ["super+k", "super+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "last"} },
+    { "keys": ["ctrl+shift+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous_sel"} },
+    { "keys": ["ctrl+shift+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next_sel"} },
+    { "keys": ["super+k", "super+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "first_sel"} },
+    { "keys": ["super+k", "super+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "last_sel"} },
 
     // Multiple Selection Scroller - Clearing:
-    { "keys": ["super+k", "["], "command": "multiple_selection_scroller", "args": {"clear_to": "middle"} },
-    { "keys": ["super+k", "]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last"} },
+    { "keys": ["super+k", "["], "command": "multiple_selection_scroller", "args": {"clear_to": "middle_sel"} },
+    { "keys": ["super+k", "]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last_sel"} },
 
 
 ### Reference
@@ -257,22 +270,24 @@ e.g.
     Either a scroll_to or a clear_to arg MUST be used in the command call.
 
     scroll_to - move the visible region centering the selection on the middle line.
-    -------------------------------------------------------------------------------
-    Command Arg      Value                 Description
-    -------------------------------------------------------------------------------
-    scroll_to        previous      Scroll to previous selection (backwards)
-    scroll_to        next          Scroll to next selection (forwards)
-    scroll_to        first         Scroll to first selection
-    scroll_to        last          Scroll to last selection
+    -------------------------------------------------------------------------------------
+    Command Arg      Value                       Description
+    -------------------------------------------------------------------------------------
+    scroll_to        previous_sel      Scroll to previous selection (backwards)
+    scroll_to        next_sel          Scroll to next selection (forwards)
+    scroll_to        first_sel         Scroll to first selection
+    scroll_to        last_sel          Scroll to last selection
 
     clear_to - clear the selections leaving a single cursor at the chosen location.
-    -------------------------------------------------------------------------------
-    Command Arg      Value                 Description
-    -------------------------------------------------------------------------------
-    clear_to         first         Clear to first selection
-    clear_to         last          Clear to last selection
-    clear_to         middle        Clear to selection on/nearest the middle line
-    -------------------------------------------------------------------------------
+    -------------------------------------------------------------------------------------
+    Command Arg      Value                       Description
+    -------------------------------------------------------------------------------------
+    clear_to         first_sel         Clear to first selection
+    clear_to         last_sel          Clear to last selection
+    clear_to         middle_sel        Clear to selection on/nearest the middle line
+    clear_to         visible_area      Clear to the middle line of the visible region
+                                       (regardless of selections, clear to current pos)
+    -------------------------------------------------------------------------------------
 
 **Settings File:**
 
@@ -280,7 +295,7 @@ e.g.
 
     MultipleSelectionScroller.quiet - control user feedback status messages.
     -------------------------------------------------------------------------------------
-    Setting                                    Value         Description
+    Setting                                    Value           Description
     -------------------------------------------------------------------------------------
     MultipleSelectionScroller.quiet            true     Do not display status messages
     MultipleSelectionScroller.quiet            false    Display status messages (default)
@@ -288,7 +303,7 @@ e.g.
 
     MultipleSelectionScroller.scroll_cycling - control scroll cycling.
     -------------------------------------------------------------------------------------
-    Setting                                    Value         Description
+    Setting                                    Value           Description
     -------------------------------------------------------------------------------------
     MultipleSelectionScroller.scroll_cycling   true     Enable scroll cycling (default)
     MultipleSelectionScroller.scroll_cycling   false    Disable scroll cycling
