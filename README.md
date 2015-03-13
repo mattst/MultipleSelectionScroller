@@ -4,9 +4,7 @@
 
 ### Overview
 
-Scroll forwards and backwards through the multiple selections, scroll directly to the first or last
-selection, and clear your selections leaving a single cursor at the first, last, or '*current*'
-selection (the one just scrolled to), or just clear all selections at the current visible area.
+Scroll forwards and backwards through the multiple selections, scroll directly to the first or last selection, and clear your selections leaving a single cursor at the first, last, or '*current*' selection (the one just scrolled to), or clear all selections at the current visible area.
 
 
 ### Features
@@ -18,63 +16,36 @@ A summary of what this plugin can do.
   2. Scroll to next selection (forwards)
   3. Scroll to first selection
   4. Scroll to last selection
+- Automatic scroll cycling, from last selection to first and visa-versa
 - Clear to selection commands - clear all selections leaving a single cursor at:
-  1. Clear to first selection (not really needed, see 'Description')
+  1. Clear to first selection (not really needed, see 'Description' section)
   2. Clear to last selection
   3. Clear to selection on, or nearest to, the middle line (conceptually the '*current*' selection)
   4. Clear to middle line of visible area (ignore selection positions, just put cursor on middle line)
-- Automatic scroll cycling, from last selection to first and visa-versa
 - User feedback status messages, e.g. *"scroll at selection: 5 of 11"* or *"cleared at selection: 3 of 5"*
 
 
 ### Description
 
-Multiple Selection Scroller is a Sublime Text plugin which provides commands to allow scrolling
-forwards and backwards through the current selections by moving the visible region so that the
-next/previous selection is centered on the middle line. Cycling from the last selection up to the
-first and visa-versa is automatic. Commands to scroll straight to the first and to the last
-selection complete its scrolling functionality.
+Multiple Selection Scroller is a Sublime Text plugin which provides commands to allow scrolling forwards and backwards through the current selections by moving the visible region so that the next/previous selection is centered on the middle line. Cycling from the last selection up to the first and visa-versa is automatic. Commands to scroll straight to the first and to the last selection complete its scrolling functionality.
 
-Multiple Selection Scroller also provides commands to clear the selections whilst leaving a single
-cursor at the first selection, at the last selection, or at the selection on, or nearest to, the
-middle line (conceptually the '*current*' selection / the one you just scrolled to) and moving the
-visible region so that the single cursor is centered on the middle line. It also has a command to
-clear the selections whilst leaving a single cursor at the end of the middle line of the visible
-region (this ignores selections and does not move the visible region) - in other words clear the
-selections and leave a cursor on the middle line of the current scroll position.
+Multiple Selection Scroller also provides commands to clear the selections whilst leaving a single cursor at the first selection, at the last selection, or at the selection on, or nearest to, the middle line (conceptually the '*current*' selection / the one you just scrolled to) and moving the visible region so that the single cursor is centered on the middle line. It also has a command to clear the selections whilst leaving a single cursor at the end of the middle line of the visible region (this ignores the positions of the selections and does not move the visible region) - in other words clear the selections and leave a cursor on the middle line of the current scroll position.
 
-Clearly the selection clearing command which leaves a cursor at the first selection is not really
-needed as the same thing is performed by pressing the `escape` key. It has only been included in the
-plugin's functionality to allow users to assign that task to the same key groupings as the other
-selection scrolling commands and to avoid the complex context based bindings associated with the
-`escape` key which are in the system default `.sublime- keymap` file.
+Note: Clearly the selection clearing command which leaves a cursor at the first selection is not really needed as the same thing is performed by pressing the `escape` key. It has only been included in the plugin's functionality to allow users to assign that task to the same key groupings as the other selection scrolling commands and to avoid the complex context based bindings associated with the `escape` key which are in the system default `.sublime-keymap` file.
 
-User feedback is given in the form of status messages. This tells the user which selection has just
-been placed on the middle line if scrolling (e.g. *"scroll at selection: 5 of 11"*), or at which
-selection the cursor has been left if clearing the selections (e.g. *"cleared at selection: 3 of
-5"*).
+User feedback is given in the form of status messages. This tells the user which selection has just been placed on the middle line if scrolling (e.g. *"scroll at selection: 5 of 11"*), or at which selection the cursor has been left if clearing the selections (e.g. *"cleared at selection: 3 of 5"*).
 
 The plugin has settings to disable user feedback status messages and to prevent scroll cycling.
 
 
 ### Known Design Limitation (Not a Bug)
 
-Please be aware that there is a known design limitation of the plugin. Selections above the middle
-line on the first page of the buffer can not be moved to the middle line, Sublime Text has no
-`scroll_above_beginning` setting. If the `scroll_past_end` setting is set to true, which it is by
-default, then the first selection below the middle line on the last page of the buffer can be moved
-to the middle line, but any subsequent selections can not be. In both cases any remaining selections
-either above or below the middle line will be in the visible region on the screen so easy to spot.
-It should be noted that this limitation does not interfere with scroll cycling which continues to
-work correctly. [In real-world usage I have not found this inconvenient when it occurs, which is
-rarely.]
+Please be aware that there is a known design limitation of the plugin. Selections above the middle line on the first page of the buffer can not be moved to the middle line, Sublime Text has no `scroll_above_beginning` setting. If the `scroll_past_end` setting is set to true, which it is by default, then the first selection below the middle line on the last page of the buffer can be moved to the middle line, but any subsequent selections can not be. In both cases any remaining selections either above or below the middle line will be in the visible region on the screen so easy to spot. It should be noted that this limitation does not interfere with scroll cycling which continues to work correctly. [In real-world usage I have not found this inconvenient when it occurs, which is rarely.]
 
 
 ### Demo
 
-The scrolling in this demo does not appear very smooth, this is because a low frame rate was used
-to keep the demo's video file size down. The scrolling performed by the plugin is done by Sublime
-Text and it will be just as smooth as your usual scrolling is.
+The scrolling in this demo does not appear very smooth, this is because a low frame rate was used to keep the demo's file size down. The scrolling performed by the plugin is done by Sublime Text and it will be just as smooth as your usual scrolling is.
 
 The demo shows both selection scrolling and selection clearing functionality.
 
@@ -98,31 +69,20 @@ Using [PackageControl](https://sublime.wbond.net) the *Sublime Text Package Mana
 
 Or install manually:
 
-- Create a directory called `MultipleSelectionScroller` (or whatever you prefer) in your Sublime
-  Text `Packages` directory.
-- Put the files from this repository into that directory either by using `git` or by downloading
-  the zip file on the [GitHub](https://github.com/mattst/sublime-multiple-selection-
-  scroller) page, [direct link to zip](https://github.com/mattst/sublime-multiple-selection-
-  scroller).
+- Create a directory called `MultipleSelectionScroller` (or whatever you prefer) in your Sublime Text `Packages` directory.
+- Put the files from this repository into that directory either by using `git` or by downloading the zip file on the [GitHub](https://github.com/mattst/sublime-multiple-selection-scroller) page, [direct link to zip](https://github.com/mattst/sublime-multiple-selection-scroller).
 - Sublime Text v.2 users must extract the files from the zip file.
-- Sublime Text v.3 users can simply rename the file replacing `.zip` with `.sublime-package` or
-extract the files if preferred.
-- Clearly if you install manually then you will not receive automatic package updates, inconvenient
-if a bug is found.
-- If you are concerned that a keys file will be added that will interfere with your config, be
-assured that no `Default (OS).sublime-keymap` will ever be added to this package.
+- Sublime Text v.3 users can simply rename the file replacing `.zip` with `.sublime-package` or extract the files if preferred.
+- Clearly if you install manually then you will not receive automatic package updates, inconvenient if a bug is found.
+- Note: If you are concerned that a keys file will be added that will interfere with your config, be assured that no `.sublime-keymap` will ever be added to this package.
 
 
 ### Setup — Settings
 
-The Multiple Selection Scroller plugin has two optional settings with which the plugin's default
-behaviour can be changed.
+The Multiple Selection Scroller plugin has two optional settings with which the plugin's default behaviour can be altered.
 
-- By default, when scrolling, the plugin will cycle from the last selection up to the first, and
-from the first down to the last. This can be disabled by setting the
-`MultipleSelectionScroller.scroll_cycling` setting to `false`.
-- By default user feedback is given in the form of status messages. This can be disabled by
-setting the `MultipleSelectionScroller.quiet` setting to `true`.
+- By default, when scrolling, the plugin will cycle from the last selection up to the first, and from the first down to the last. This can be disabled by setting the `MultipleSelectionScroller.scroll_cycling` setting to `false`.
+- By default user feedback is given in the form of status messages. This can be disabled by setting the `MultipleSelectionScroller.quiet` setting to `true`.
 
 e.g. Add these settings to your `Preferences.sublime-settings` file:
 
@@ -135,130 +95,11 @@ e.g. Add these settings to your `Preferences.sublime-settings` file:
 
 ### Setup — Keys
 
-The Multiple Selection Scroller plugin does not provide a keymap file to set its keys. Choosing keys
-that will suit all users is not possible - the chosen keys will always interfere with the existing
-keys of some users. Various suggested key mappings are shown below - these can be copied and pasted
-into your `Default (OS).sublime-keymap` file and altered to suit your configuration.
+The Multiple Selection Scroller plugin does not provide a `.sublime-keymap` file to set its keys.
 
-The `[` and `]` square bracket keys are already used for line indenting and code folding, using them
-for multi-selection scrolling and clearing in various key combinations seems both convenient and
-appropriate.
+Choosing keys that will suit all users is not possible - the chosen keys will always interfere with the existing keys of some users. The `README_KEYS.md` file, linked below, contains suggestions and examples of various key bindings that can be copied and pasted into your `Default (OS).sublime-keymap` file and altered to suit your configuration.
 
-
-**Suggested Keys Linux/Windows - Minimal Setup:**
-
-Notes:
-
-- The commands most often used are: *scroll to next selection*, *scroll to previous selection*, *clear
-to last selection*, and *clear to selection on (or nearest to) the middle line*. Below is an example
-of what you could use for just those commands.
-- The clearing keys below use `alt+k` as a key chord, e.g. `"alt+k", "alt+["`. This is so that
-the common process of scrolling to the desired selection and then clearing at that selection can
-be achieved without taking your finger off the `alt` key. Clearly these can easily be changed to
-use `ctrl+k`, e.g. `"ctrl+k", "ctrl+["`.
-
-e.g.
-
-    // Multiple Selection Scroller - Scrolling:
-    { "keys": ["alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous_sel"} },
-    { "keys": ["alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next_sel"} },
-
-    // Multiple Selection Scroller - Clearing:
-    { "keys": ["alt+k", "alt+["], "command": "multiple_selection_scroller", "args": {"clear_to": "middle_sel"} },
-    { "keys": ["alt+k", "alt+]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last_sel"} },
-
-
-**Suggested Keys OS X - Minimal Setup:**
-
-Notes:
-
-- The commands most often used are: *scroll to next selection*, *scroll to previous selection*, *clear
-to last selection*, and *clear to selection on (or nearest to) the middle line*. Below is an example
-of what you could use for just those commands.
-- Choosing keys for OS X having never used Sublime Text on OS X is quite difficult. I've examined
-the `Default (OSX).sublime-keymap` file and chosen appropriate key combinations that are not used
-in that file.
-
-e.g.
-
-    // Multiple Selection Scroller - Scrolling:
-    { "keys": ["ctrl+shift+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous_sel"} },
-    { "keys": ["ctrl+shift+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next_sel"} },
-
-    // Multiple Selection Scroller - Clearing:
-    { "keys": ["super+k", "super+["], "command": "multiple_selection_scroller", "args": {"clear_to": "middle_sel"} },
-    { "keys": ["super+k", "super+]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last_sel"} },
-
-
-**Suggested Keys Linux/Windows - Full Setup #1:**
-
-Notes:
-
-- The clearing keys below do not use a modifier key for the 2nd keypress, e.g. `"alt+k", "["`.
-This is done so that all the command's keys can use a single modifier key `alt`. If you don't like
-that there are alternative suggestions below.
-- In fact it is not quite a "Full Setup", clearing to the first selection is not set. As you know
-pressing `escape` will do that. Using `"clear_to": "first"` differs only in that when clearing to
-the first selection only the cursor remains at the first selection, rather than the first selection
-remaining fully selected which is what pressing `escape` will do. If you want that functionality
-add a key. [For clearing, I use `[` to first, `]` to last, `#` to middle - note `#` is to the right
-of `]` on my keyboard layout although on most keyboards `\` is in that position. Hint: If using `\`
-then that key needs to be escaped in the binding, e.g. `"alt+k", "\\"`.
-
-e.g.
-
-    // Multiple Selection Scroller - Scrolling:
-    { "keys": ["alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous_sel"} },
-    { "keys": ["alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next_sel"} },
-    { "keys": ["alt+k", "alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "first_sel"} },
-    { "keys": ["alt+k", "alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "last_sel"} },
-
-    // Multiple Selection Scroller - Clearing:
-    { "keys": ["alt+k", "["], "command": "multiple_selection_scroller", "args": {"clear_to": "middle_sel"} },
-    { "keys": ["alt+k", "]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last_sel"} },
-
-
-**Suggested Keys Linux/Windows - Full Setup #2:**
-
-Notes:
-
-- Please read the notes in **Full Setup #1**.
-- If you do not like the way **Full Setup #1** does not use a modifier key for the 2nd keypress,
-here is an alternative.
-
-e.g.
-
-    // Multiple Selection Scroller - Scrolling:
-    { "keys": ["alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous_sel"} },
-    { "keys": ["alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next_sel"} },
-    { "keys": ["alt+k", "alt+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "first_sel"} },
-    { "keys": ["alt+k", "alt+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "last_sel"} },
-
-    // Multiple Selection Scroller - Clearing:
-    { "keys": ["ctrl+k", "ctrl+["], "command": "multiple_selection_scroller", "args": {"clear_to": "middle_sel"} },
-    { "keys": ["ctrl+k", "ctrl+]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last_sel"} },
-
-
-**Suggested Keys OS X - Full Setup:**
-
-- The clearing keys below do not use a modifier key for the 2nd keypress, e.g. `"super+k", "["`.
-This is done so that the number of different keys in use can be kept to a minimum.
-- Please read the notes in **Linux/Windows - Full Setup #1** about it being **not quite a "Full
-Setup"**.
-- There is only one set of suggested keys for OS X Full Setup - choosing keys for OS X having never
-used Sublime Text on OS X is quite difficult (as already stated).
-
-e.g.
-
-    // Multiple Selection Scroller - Scrolling:
-    { "keys": ["ctrl+shift+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "previous_sel"} },
-    { "keys": ["ctrl+shift+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "next_sel"} },
-    { "keys": ["super+k", "super+["], "command": "multiple_selection_scroller", "args": {"scroll_to": "first_sel"} },
-    { "keys": ["super+k", "super+]"], "command": "multiple_selection_scroller", "args": {"scroll_to": "last_sel"} },
-
-    // Multiple Selection Scroller - Clearing:
-    { "keys": ["super+k", "["], "command": "multiple_selection_scroller", "args": {"clear_to": "middle_sel"} },
-    { "keys": ["super+k", "]"], "command": "multiple_selection_scroller", "args": {"clear_to": "last_sel"} },
+Please follow this link to read the [README_KEYS.md](https://github.com/mattst/sublime-multiple-selection-scroller/README_KEYS.md) file.
 
 
 ### Reference
@@ -315,19 +156,8 @@ The MIT License (MIT)
 
 Copyright (c) 2015 mattst@i-dig.info / https://github.com/mattst
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
