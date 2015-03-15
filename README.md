@@ -1,5 +1,5 @@
 
-## Multiple Selection Scroller - Plugin for Sublime Text v.2 and v.3
+## Multiple Selection Scroller - Plugin for Sublime Text v2 and v3
 
 
 ### Overview
@@ -18,7 +18,7 @@ A summary of what this plugin can do.
   4. Scroll to last selection
 - Automatic scroll cycling, from last selection to first and visa-versa
 - Clear to selection commands - clear all selections leaving a single cursor at:
-  1. Clear to first selection (not really needed, see 'Description' section)
+  1. Clear to first selection (not really needed, see '*Description*' section)
   2. Clear to last selection
   3. Clear to selection on, or nearest to, the middle line (conceptually the '*current*' selection)
   4. Clear to middle line of visible area (ignore selection positions, just put cursor on middle line)
@@ -49,7 +49,7 @@ The scrolling in this demo does not appear very smooth, this is because a low fr
 
 The demo shows both selection scrolling and selection clearing functionality.
 
-![Demo](http://picsee.net/upload/2015-03-09/96e742c55eff.gif)
+![Demo](https://cloud.githubusercontent.com/assets/835623/6656762/542d4362-cb2c-11e4-812c-43d9e75591ad.gif)
 
 
 ### Requirements / Tested
@@ -61,16 +61,16 @@ The demo shows both selection scrolling and selection clearing functionality.
 
 ### Installation
 
-Using [PackageControl](https://sublime.wbond.net) the *Sublime Text Package Manager*.
+Recommended: Using [PackageControl](https://sublime.wbond.net) the *Sublime Text Package Manager*.
 
 - Open the `Command Palette` in Sublime Text and select `Package Control: Install Package`.
-- When the package list has loaded, select `Multiple Selection Scroller`.
+- When the package list has loaded, select `MultipleSelectionScroller`.
 - *Note: This plugin has been submitted to PackageControl but it may take a few days before it is available.*
 
-Or install manually:
+Not Recommended: Install Manually:
 
 - Create a directory called `MultipleSelectionScroller` (or whatever you prefer) in your Sublime Text `Packages` directory.
-- Put the files from this repository into that directory either by using `git` or by downloading the zip file on the [GitHub](https://github.com/mattst/sublime-multiple-selection-scroller) page, [direct link to zip](https://github.com/mattst/sublime-multiple-selection-scroller).
+- Put the files from this repository into that directory either by using `git` or by downloading the zip file on the [GitHub](https://github.com/mattst/MultipleSelectionScroller) page.
 - Sublime Text v.2 users must extract the files from the zip file.
 - Sublime Text v.3 users can simply rename the file replacing `.zip` with `.sublime-package` or extract the files if preferred.
 - Clearly if you install manually then you will not receive automatic package updates, inconvenient if a bug is found.
@@ -99,12 +99,12 @@ The Multiple Selection Scroller plugin does not provide a `.sublime-keymap` file
 
 Choosing keys that will suit all users is not possible - the chosen keys will always interfere with the existing keys of some users. The `README_KEYS.md` file, linked below, contains suggestions and examples of various key bindings that can be copied and pasted into your `Default (OS).sublime-keymap` file and altered to suit your configuration.
 
-Please follow this link to read the [README_KEYS.md](https://github.com/mattst/sublime-multiple-selection-scroller/README_KEYS.md) file.
+Please follow this link to read the [README_KEYS.md](https://github.com/mattst/MultipleSelectionScroller/blob/master/README_KEYS.md) file.
 
 
 ### Reference
 
-**Command and Agruments:**
+**Command and Arguments:**
 
     Command name: multiple_selection_scroller
 
