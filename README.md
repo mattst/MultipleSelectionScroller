@@ -1,16 +1,12 @@
 
-## Multiple Selection Scroller - Plugin for Sublime Text v2 and v3
-
-
-### Overview
-
-Scroll forwards and backwards through the multiple selections, scroll directly to the first or last selection, and clear your selections leaving a single cursor at the first, last, or '*current*' selection (the one just scrolled to), or clear all selections at the current visible area.
+## Multiple Selection Scroller - Plugin for Sublime Text
 
 
 ### Features
 
-A summary of what this plugin can do.
+A summary of what this plugin can do:
 
+- Compatible with Sublime Text v.2 and v.3
 - Scroll to selection commands - center chosen selection on the middle line:
   1. Scroll to previous selection (backwards)
   2. Scroll to next selection (forwards)
@@ -23,6 +19,7 @@ A summary of what this plugin can do.
   3. Clear to selection on, or nearest to, the middle line (conceptually the '*current*' selection)
   4. Clear to middle line of visible area (ignore selection positions, just put cursor on middle line)
 - User feedback status messages, e.g. *"scroll at selection: 5 of 11"* or *"cleared at selection: 3 of 5"*
+- Settings to disable user feedback status messages and to prevent scroll cycling
 
 
 ### Description
@@ -40,7 +37,7 @@ The plugin has settings to disable user feedback status messages and to prevent 
 
 ### Known Design Limitation (Not a Bug)
 
-Please be aware that there is a known design limitation of the plugin. Selections above the middle line on the first page of the buffer can not be moved to the middle line, Sublime Text has no `scroll_above_beginning` setting. If the `scroll_past_end` setting is set to true, which it is by default, then the first selection below the middle line on the last page of the buffer can be moved to the middle line, but any subsequent selections can not be. In both cases any remaining selections either above or below the middle line will be in the visible region on the screen so easy to spot. It should be noted that this limitation does not interfere with scroll cycling which continues to work correctly. [In real-world usage I have not found this inconvenient when it occurs, which is rarely.]
+Please be aware that there is a known design limitation of the plugin. Selections above the middle line on the first page of the buffer can not be moved to the middle line, Sublime Text has no `scroll_above_beginning` setting. If the `scroll_past_end` setting is set to true, which it is by default, then the first selection below the middle line on the last page of the buffer can be moved to the middle line, but any subsequent selections can not be. In both cases any remaining selections either above or below the middle line will be in the visible region on the screen so easy to spot. It should be noted that this limitation does not interfere with scroll cycling which continues to work correctly. [*In real-world usage I have not found this inconvenient when it occurs, which is rarely.*]
 
 
 ### Demo
@@ -97,7 +94,7 @@ e.g. Add these settings to your `Preferences.sublime-settings` file:
 
 The Multiple Selection Scroller plugin does not provide a `.sublime-keymap` file to set its keys.
 
-Choosing keys that will suit all users is not possible - the chosen keys will always interfere with the existing keys of some users. The `README_KEYS.md` file, linked below, contains suggestions and examples of various key bindings that can be copied and pasted into your `Default (OS).sublime-keymap` file and altered to suit your configuration.
+Choosing keys that will suit all users is not possible - the chosen keys will always interfere with the existing keys of some users. The `README_KEYS.md` file, linked below, contains suggestions and examples of various key bindings that can be copied and pasted into your user `Default (OS).sublime-keymap` file and altered to suit your configuration.
 
 Please follow this link to read the [README_KEYS.md](https://github.com/mattst/MultipleSelectionScroller/blob/master/README_KEYS.md) file.
 

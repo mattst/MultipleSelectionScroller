@@ -1,8 +1,8 @@
 
-## Multiple Selection Scroller - Plugin for Sublime Text v2 and v3
+## Multiple Selection Scroller - Plugin for Sublime Text
 
 
-## Setup — Keys
+### Setup — Keys
 
 The Multiple Selection Scroller plugin does not provide a keymap file to set its keys. Choosing keys that will suit all users is not possible - the chosen keys will always interfere with the existing keys of some users.
 
@@ -14,7 +14,7 @@ In some of the examples below there are key chords which do not use a modifier k
 
 In some of the Linux/Windows examples `alt+k` is used as a key chord, e.g. `"alt+k", "alt+["`, in the clearing commands. This is so that the common process of scrolling to the desired selection and then clearing at that selection can be achieved without taking your finger off the `alt` key. Clearly these can easily be changed to use `ctrl+k`, e.g. `"ctrl+k", "ctrl+["` if you don't want to use `alt+k` as a key chord, as is shown in some of the other examples.
 
-Users may want to consider utilizing whatever key is to the right of the `]` key on their keyboard, `#` in the UK, `\` in the US. I use that key for clearing the `visible_area`. None of the examples below demonstrate this because the key in that position varies quite a lot depending on the keyboard layout, and on laptops there is often no key there at all.
+Users may want to consider utilizing whatever key is to the right of the `"]"` key on their keyboard, `"#"` in the UK, `"\"` in the USA. I use that key for clearing the `visible_area`. None of the examples below demonstrate this because the key in that position varies quite a lot depending on the keyboard layout, and on laptops there is often no key there at all.
 
 Only the '*Totally Full Setup*' in the examples below implements the clearing to the first selection command, `{"clear_to": "first_sel"}`. Clearing to the first selection is not really needed because you can just press the `escape` key. It has only been included in the plugin's functionality to allow users to assign that task to the same key groupings as the other selection scrolling commands and to avoid the complex context based bindings associated with the `escape` key which are in the system default `.sublime-keymap` file.
 
@@ -54,7 +54,7 @@ Here is a table showing what all of the command argument and value pairings do.
 
 The Multiple Selection Scroller plugin has 8 different command argument and value pairings, quite a lot of new keys to add at once and remember.
 
-Some users will not want to use all of the plugin's functionality. For instance the keys to scroll directly to the first and last selections can be omitted (although they can be useful) because you can get to those selections by repeated pressing of the scroll to the previous and next selection keys.
+Some users will not want to use all of the plugin's functionality. For instance the keys to scroll directly to the first and last selections can be omitted (although they can be useful) because you can get to those selections by repeated pressing of the scroll to the previous/next selection keys.
 
 The commands most often used are:
 
