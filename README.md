@@ -62,7 +62,6 @@ Recommended: Using [PackageControl](https://sublime.wbond.net) the *Sublime Text
 
 - Open the `Command Palette` in Sublime Text and select `Package Control: Install Package`.
 - When the package list has loaded, select `MultipleSelectionScroller`.
-- *Note: This plugin has been submitted to PackageControl but it may take a few days before it is available.*
 
 Not Recommended: Install Manually:
 
